@@ -4,30 +4,30 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def analyze_dataframe(df):
-    print(f"\nAnalyzing DataFrame: {df}")
-    print(f"\nShape: {df.shape}")
-    print(f"Data types:\n{df.dtypes}")
-    print(f"Columns: {df.columns.tolist()}")
-    print(f"Number of unique values:\n{df.nunique()}")
-    print(f"\nFirst 5 rows:\n{df.head()}")
-    print(f"\nLast 5 rows:\n{df.tail()}")
-    print(f"\nNull count per column:\n{df.isnull().sum()}")
-    print(f"\nDescriptive Stats:\n{df.describe(include='all')}")
+    print(f"Analyzing DataFrame...")
+    print(f"Shape: {df.shape}")
+    print(f"Data types: \n{df.dtypes}")
+    print(f"Columns: \n{df.columns.tolist()}")
+    print(f"Number of unique values: \n{df.nunique()}")
+    print(f"First 5 rows: \n{df.head()}")
+    print(f"Last 5 rows: \n{df.tail()}")
+    print(f"Null count per column: \n{df.isnull().sum()}")
+    print(f"Descriptive Stats: \n{df.describe(include='all')}")
 
     numeric_df = df.select_dtypes(include='number')
     if not numeric_df.empty:
-        print("\nCorrelation Heatmap:")
+        print("Correlation Heatmap:")
         plot_heatmap(numeric_df.corr(numeric_only=True), vmax=1)
 
-        print("\nPairplot of numerical features:")
+        print("Pairplot of numerical features:")
         plot_pairplot(numeric_df)
 
-    print("\nValue Counts for Categorical Features:")
+    print("Value Counts for Categorical Features:")
     plot_value_counts(df)
 
     id_column = 'Aadhar No.'
     df = df.reset_index()
-    print(f"\nBar plots by `{id_column}`:")
+    print(f"Bar plots by `{id_column}`:")
     for col in df.columns:
         if col != id_column and pd.api.types.is_numeric_dtype(df[col]):
             plot_bargraph(df, (id_column, col))
