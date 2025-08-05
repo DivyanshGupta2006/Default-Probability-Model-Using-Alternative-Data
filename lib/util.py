@@ -51,3 +51,44 @@ def create_truncated_norm_distribution(stats, precision=2, nan_probability=0):
     mask = np.random.rand(n) < nan_probability
     data[mask] = np.nan
     return data
+
+from scipy.stats import truncnorm
+import numpy as np
+
+def create_normal_distribution_with_correlation(
+        stats_list,  # list of (mean, std, min, max) for each variable
+        correlation_matrix,  # correlation matrix (len(stats_list) x len(stats_list))
+        n=100,
+        precision=2,
+        nan_probability=0
+):
+    num_vars = len(stats_list)
+    correlation_matrix = np.array(correlation_matrix)
+
+    # Validate matrix size
+    if correlation_matrix.shape != (num_vars, num_vars):
+        raise ValueError("Correlation matrix size does not match number of variables")
+
+    # Create covariance matrix
+    std_devs = np.array([s[1] for s in stats_list])
+    cov_matrix = correlation_matrix * np.outer(std_devs, std_devs)
+
+    # Generate correlated normal samples
+    means = np.array([s[0] for s in stats_list])
+    raw_data = np.random.multivariate_normal(means, cov_matrix, size=n)
+
+    # Truncate values while keeping correlation
+    for i, (mean, std, min_val, max_val) in enumerate(stats_list):
+        raw_data[:, i] = np.clip(raw_data[:, i], min_val, max_val)
+
+    # Round
+    raw_data = np.round(raw_data, precision)
+
+    # Inject NaNs
+    if nan_probability > 0:
+        mask = np.random.rand(*raw_data.shape) < nan_probability
+        raw_data[mask] = np.nan
+
+    return raw_data
+
+

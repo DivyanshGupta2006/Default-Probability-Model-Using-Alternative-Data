@@ -45,22 +45,26 @@ def plot_pairplot(data):
     plt.suptitle("Pairplot of Numerical Features", y=1.02)
     plt.show()
 
-def plot_bargraph(data, columns):
-    x, y = columns
-    if data[x].nunique() < 500 and data[y].nunique() < 500:
-        plt.figure(figsize=(8, 4))
+
+def plot_bargraph(data, columns, bins=30):
+    x, y = columns  # unpack the tuple
+
+    plt.figure(figsize=(8, 4))
+
+    # If numeric → histogram
+    if pd.api.types.is_numeric_dtype(data[y]) and data[y].nunique() > 20:
+        plt.hist(data[y].dropna(), bins=bins, density=True, alpha=0.7, color='g')
+        plt.title(f"Distribution of {y}")
+        plt.xlabel(y)
+        plt.ylabel("Probability Density")
+    else:
         grouped = data.groupby(x)[y].mean().sort_values(ascending=False)
         sns.barplot(x=grouped.index, y=grouped.values)
         plt.title(f"{y} by {x}")
-        plt.ylabel(y)
-        plt.xlabel(x)
         plt.xticks(rotation=45)
-        plt.tight_layout()
-        plt.figure(figsize=(7,4))
-        data.plot(x=columns[0], y=columns[1], kind='bar', legend=True)
-        plt.show()
-    else:
-        print(f'Too many values to plot Bargraph for {y}')
+
+    plt.tight_layout()
+    plt.show()
 
 def plot_value_counts(df):
     for col in df.select_dtypes(include='object').columns:
