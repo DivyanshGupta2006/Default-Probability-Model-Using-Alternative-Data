@@ -14,53 +14,32 @@ rd.seed(42)
 def fabricate_base_data(
         num_rows=n,
         id_range=(10 ** 11, 10 ** 12 - 1),
-        age_stats=(36.17, 12.68, 18, 65)
+        age_stats=(36.17, 12.68, 18, 65),
+        city_categories=('TIER-I', 'TIER-II', 'TIER-III', 'VILLAGE'),
+        city_stats=(25.9, 3.1, 2.2, 68.8),
+        gender_categories=('Male', 'Female', 'Other'),
+        gender_stats=(51.55, 48.41, 0.04)
 ):
     data = []
     aadhar = rd.sample(range(id_range[0], id_range[1] + 1), num_rows)
     ages = create_truncated_norm_distribution(age_stats, precision=0)
+    genders = create_categorical_distribution(gender_categories, gender_stats)
+    cities = create_categorical_distribution(city_categories, city_stats)
     for _ in range(num_rows):
         aadhar_no = aadhar[_]
         age = ages[_]
+        gender = genders[_]
+        city = cities[_]
         name = fake.name()
         email = fake.email()
         phone = fake.phone_number()
-        data.append([aadhar_no, name, age, email, phone])
-    df = pd.DataFrame(data, columns=['Aadhar No.', 'Name', 'Age', 'E-mail', 'Phone No.'])
+        data.append([aadhar_no, name, age, gender, city, email, phone])
+    df = pd.DataFrame(data, columns=['Aadhar No.', 'Name', 'Age', 'Gender', 'City', 'E-mail', 'Phone No.'])
     df.set_index('Aadhar No.', inplace=True)
     return df
 
 
-def create_positive_norm_distribution(
-        stats,
-        precision=2,
-        nan_probability=0):
-    data = []
-    for _ in range(n):
-        datafield = np.random.normal(stats[0], stats[1])
-        datafield = max(0, round(datafield, precision))
-        if np.random.rand() < nan_probability:
-            datafield = np.nan
-        data.append(datafield)
-    return data
-
-
-def create_norm_distribution(
-        stats,
-        precision=2,
-        nan_probability=0):
-    data = []
-    for _ in range(n):
-        datafield = np.random.normal(stats[0], stats[1])
-        datafield = round(datafield, precision)
-        if np.random.rand() < nan_probability:
-            datafield = np.nan
-        data.append(datafield)
-    return data
-
-
 def create_truncated_norm_distribution(
-        categories,
         stats,
         precision=2,
         nan_probability=0):
@@ -110,11 +89,21 @@ def create_correlated_norm_distribution(
     return raw_data
 
 
+def create_correlated_positive_norm_distribution(
+        stats,
+        data,
+        correlation_columns,
+        correlation,
+        precision=2,
+        nan_probability=0
+):
+    data = []
+    return data
+
+
 def create_categorical_distribution(
         categories,
         stats,
-        n=10000,
-        precision=2,
         nan_probability=0
 ):
     data = []
@@ -124,4 +113,15 @@ def create_categorical_distribution(
         else:
             data.append(rd.choices(categories, weights=stats, k=1)[0])
 
+    return data
+
+
+def create_correlated_categorical_distribution(
+        categories,
+        stats,
+        correlation_columns,
+        correlation,
+        nan_probability=0
+):
+    data = []
     return data

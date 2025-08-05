@@ -34,33 +34,38 @@ def analyze_dataframe(df):
     df.set_index(id_column, inplace=True)
 
 def plot_heatmap(data, vmax):
-    plt.figure(figsize=(10,6))
+    plt.figure(figsize=(100,60))
     sns.set(font_scale = 1.4)
     sns.heatmap(data, cmap='coolwarm', annot=True, annot_kws={'size': 15}, vmax=vmax, fmt=".2f")
     plt.title("Correlation Heatmap")
+    plt.tight_layout()
     plt.show()
 
 def plot_pairplot(data):
+    plt.figure(figsize=(100, 60))
     sns.pairplot(data.select_dtypes(include='number'))
     plt.suptitle("Pairplot of Numerical Features", y=1.02)
+    plt.tight_layout()
     plt.show()
 
 
 def plot_bargraph(data, columns, bins=30):
-    x, y = columns  # unpack the tuple
+    x, y = columns  # unpack tuple
 
-    plt.figure(figsize=(8, 4))
+    plt.figure(figsize=(100,60))
 
-    # If numeric → histogram
-    if pd.api.types.is_numeric_dtype(data[y]) and data[y].nunique() > 20:
+    # Decide plot type based on number of unique values in y
+    if pd.api.types.is_numeric_dtype(data[y]) and data[y].nunique() > 5:
+        # Continuous variable -> histogram
         plt.hist(data[y].dropna(), bins=bins, density=True, alpha=0.7, color='g')
         plt.title(f"Distribution of {y}")
         plt.xlabel(y)
         plt.ylabel("Probability Density")
     else:
+        # Treat as categorical -> bar plot
         grouped = data.groupby(x)[y].mean().sort_values(ascending=False)
         sns.barplot(x=grouped.index, y=grouped.values)
-        plt.title(f"{y} by {x}")
+        plt.title(f"Average {y} by {x}")
         plt.xticks(rotation=45)
 
     plt.tight_layout()
