@@ -55,7 +55,7 @@ def create_truncated_norm_distribution(stats, precision=2, nan_probability=0):
 from scipy.stats import truncnorm
 import numpy as np
 
-def create_normal_distribution_with_correlation(
+def create_correlated_norm_distribution(
         stats_list,  # list of (mean, std, min, max) for each variable
         correlation_matrix,  # correlation matrix (len(stats_list) x len(stats_list))
         n=100,
