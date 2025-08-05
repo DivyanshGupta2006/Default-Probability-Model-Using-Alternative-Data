@@ -4,16 +4,21 @@ import pandas as pd
 import random as rd
 from scipy.stats import truncnorm
 
-n = 10000 # data-points
-fake = Faker('en_IN') # Faker instance
+n = 10000  # data-points
+fake = Faker('en_IN')  # Faker instance
 Faker.seed(42)
 np.random.seed(42)
 rd.seed(42)
 
-def fabricate_base_data(num_rows=n, id_range=(10**11, 10**12-1) ,age_stats=(36.17, 12.68, 18, 65)):
+
+def fabricate_base_data(
+        num_rows=n,
+        id_range=(10 ** 11, 10 ** 12 - 1),
+        age_stats=(36.17, 12.68, 18, 65)
+):
     data = []
     aadhar = rd.sample(range(id_range[0], id_range[1] + 1), num_rows)
-    ages=create_truncated_norm_distribution(age_stats, precision=0)
+    ages = create_truncated_norm_distribution(age_stats, precision=0)
     for _ in range(num_rows):
         aadhar_no = aadhar[_]
         age = ages[_]
@@ -25,7 +30,11 @@ def fabricate_base_data(num_rows=n, id_range=(10**11, 10**12-1) ,age_stats=(36.1
     df.set_index('Aadhar No.', inplace=True)
     return df
 
-def create_positive_norm_distribution(stats, precision=2, nan_probability=0):
+
+def create_positive_norm_distribution(
+        stats,
+        precision=2,
+        nan_probability=0):
     data = []
     for _ in range(n):
         datafield = np.random.normal(stats[0], stats[1])
@@ -34,7 +43,12 @@ def create_positive_norm_distribution(stats, precision=2, nan_probability=0):
             datafield = np.nan
         data.append(datafield)
     return data
-def create_norm_distribution(stats, precision=2, nan_probability=0):
+
+
+def create_norm_distribution(
+        stats,
+        precision=2,
+        nan_probability=0):
     data = []
     for _ in range(n):
         datafield = np.random.normal(stats[0], stats[1])
@@ -43,22 +57,26 @@ def create_norm_distribution(stats, precision=2, nan_probability=0):
             datafield = np.nan
         data.append(datafield)
     return data
-def create_truncated_norm_distribution(stats, precision=2, nan_probability=0):
+
+
+def create_truncated_norm_distribution(
+        categories,
+        stats,
+        precision=2,
+        nan_probability=0):
     a = (stats[2] - stats[0]) / stats[1]
     b = (stats[3] - stats[0]) / stats[1]
-    data=truncnorm(a, b, loc=stats[0], scale=stats[1]).rvs(size=n)
+    data = truncnorm(a, b, loc=stats[0], scale=stats[1]).rvs(size=n)
     data = np.round(data, precision)
     mask = np.random.rand(n) < nan_probability
     data[mask] = np.nan
     return data
 
-from scipy.stats import truncnorm
-import numpy as np
 
 def create_correlated_norm_distribution(
         stats_list,  # list of (mean, std, min, max) for each variable
         correlation_matrix,  # correlation matrix (len(stats_list) x len(stats_list))
-        n=100,
+        n=10000,
         precision=2,
         nan_probability=0
 ):
@@ -92,3 +110,18 @@ def create_correlated_norm_distribution(
     return raw_data
 
 
+def create_categorical_distribution(
+        categories,
+        stats,
+        n=10000,
+        precision=2,
+        nan_probability=0
+):
+    data = []
+    for _ in range(n):
+        if np.random.rand() < nan_probability:
+            data.append(np.nan)
+        else:
+            data.append(rd.choices(categories, weights=stats, k=1)[0])
+
+    return data
