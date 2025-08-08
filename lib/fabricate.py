@@ -31,10 +31,9 @@ def fabricate_base_data(
         gender = genders[_]
         city = cities[_]
         name = fake.name()
-        email = fake.email()
         phone = fake.phone_number()
-        data.append([aadhar_no, name, age, gender, city, email, phone])
-    df = pd.DataFrame(data, columns=['Aadhar No.', 'Name', 'Age', 'Gender', 'City', 'E-mail', 'Phone No.'])
+        data.append([aadhar_no, name, age, gender, city, phone])
+    df = pd.DataFrame(data, columns=['Aadhar No.', 'Name', 'Age', 'Gender', 'City', 'Phone No.'])
     df.set_index('Aadhar No.', inplace=True)
     return df
 
