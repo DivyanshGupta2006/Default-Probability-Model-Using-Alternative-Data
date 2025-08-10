@@ -53,57 +53,68 @@ def create_truncated_norm_distribution(
 
 
 def create_correlated_distribution(
-        stats_list,           # list of (mean, std, min, max, type) — type in {"continuous", "binary"}
-        correlation_matrix,   # correlation matrix (len(stats_list) x len(stats_list))
-        n=10000,
-        precision=2,
-        nan_probability=0
+    stats_list,              # list of (mean, std, min, max, type)
+    correlation_matrix,      # (p x p) correlation matrix in the SAME order as stats_list
+    n=10000,
+    precision=2,
+    nan_probability=0.0,
+    eps_regularize=1e-8
 ):
-    num_vars = len(stats_list)
-    correlation_matrix = np.array(correlation_matrix, dtype=float)
+    p = len(stats_list)
+    corr = np.array(correlation_matrix, dtype=float)
 
-    # --- Step 1: Validate correlation matrix size ---
-    if correlation_matrix.shape != (num_vars, num_vars):
-        raise ValueError("Correlation matrix size does not match number of variables")
+    # --- 0. quick checks ---
+    if corr.shape != (p, p):
+        raise ValueError("correlation_matrix must be shape (len(stats_list), len(stats_list))")
 
-    # --- Step 2: Ensure positive semi-definiteness ---
-    eigvals, eigvecs = eigh(correlation_matrix)
+    # Symmetrize and force PSD (clip negative eigenvalues)
+    corr = (corr + corr.T) / 2.0
+    eigvals, eigvecs = eigh(corr)
     if np.any(eigvals < 0):
-        eigvals[eigvals < 0] = 0  # force non-negative eigenvalues
-        correlation_matrix = (eigvecs @ np.diag(eigvals) @ eigvecs.T)
+        eigvals[eigvals < 0] = 0.0
+        corr = eigvecs @ np.diag(eigvals) @ eigvecs.T
+        # rescale diagonal to 1 (numerical fix)
+        d = np.sqrt(np.diag(corr))
+        corr = corr / np.outer(d, d)
+        np.fill_diagonal(corr, 1.0)
 
-    # --- Step 3: Generate base multivariate normal ---
-    std_devs = np.array([s[1] for s in stats_list])
-    cov_matrix = correlation_matrix * np.outer(std_devs, std_devs)
-    means = np.array([s[0] for s in stats_list])
-    mvn_data = np.random.multivariate_normal(means, cov_matrix, size=n)
+    # tiny regularization to ensure positive-definite for sampling
+    corr = corr + np.eye(p) * eps_regularize
 
-    # --- Step 4: Transform each column according to type ---
+    # --- 1. Sample correlated standard normals (Gaussian copula) ---
+    z = np.random.multivariate_normal(mean=np.zeros(p), cov=corr, size=n)  # shape (n, p)
+
+    # --- 2. Map to uniforms using standard normal CDF ---
+    u = norm.cdf(z)   # values in (0,1), shape (n,p)
+
+    # --- 3. Transform uniforms to target marginals using inverse CDFs ---
+    out = np.empty_like(u, dtype=float)
     for i, (mean, std, min_val, max_val, var_type) in enumerate(stats_list):
-
         if var_type == "continuous":
-            # Convert to truncated normal
+            # truncated normal parameters relative to standard normal
             a, b = (min_val - mean) / std, (max_val - mean) / std
-            mvn_data[:, i] = truncnorm(a, b, loc=mean, scale=std).rvs(size=n)
-
-            # Round to given precision
-            mvn_data[:, i] = np.round(mvn_data[:, i], precision)
+            # ppf of truncnorm maps uniform -> truncated normal with desired mean/std
+            out[:, i] = truncnorm.ppf(u[:, i], a=a, b=b, loc=mean, scale=std)
+            out[:, i] = np.round(out[:, i], precision)
 
         elif var_type == "binary":
-            # Map MVN variable through normal CDF -> uniform -> binary
-            prob = norm.cdf((mvn_data[:, i] - mean) / std)  # convert to [0,1]
-            mvn_data[:, i] = (prob > 0.5).astype(int)
+            # Interpret 'mean' as probability if in [0,1]
+            if 0.0 <= mean <= 1.0:
+                p_true = mean
+            else:
+                # fallback: convert mean/std to a probability via normal cdf (less preferred)
+                p_true = norm.cdf((mean) / max(std, 1e-8))
+            out[:, i] = (u[:, i] < p_true).astype(int)
 
         else:
-            raise ValueError(f"Unknown variable type: {var_type}")
+            raise ValueError(f"Unknown var_type '{var_type}' for variable index {i}")
 
-    # --- Step 5: Inject NaNs ---
-    if nan_probability > 0:
-        mask = np.random.rand(*mvn_data.shape) < nan_probability
-        mvn_data[mask] = np.nan
+    # --- 4. Inject NaNs if requested ---
+    if nan_probability and nan_probability > 0:
+        mask = np.random.rand(*out.shape) < nan_probability
+        out[mask] = np.nan
 
-    return mvn_data
-
+    return out
 def create_correlated_positive_norm_distribution(
         stats,
         data,
