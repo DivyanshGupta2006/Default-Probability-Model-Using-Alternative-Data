@@ -34,42 +34,46 @@ def analyze_dataframe(df):
     df.set_index(id_column, inplace=True)
 
 def plot_heatmap(data, vmax):
-    plt.figure(figsize=(100,60))
+    plt.figure(figsize=(10,6))
     sns.set(font_scale = 1.4)
     sns.heatmap(data, cmap='coolwarm', annot=True, annot_kws={'size': 15}, vmax=vmax, fmt=".2f")
     plt.title("Correlation Heatmap")
-    plt.tight_layout()
     plt.show()
 
 def plot_pairplot(data):
-    plt.figure(figsize=(100, 60))
     sns.pairplot(data.select_dtypes(include='number'))
     plt.suptitle("Pairplot of Numerical Features", y=1.02)
-    plt.tight_layout()
     plt.show()
 
 
-def plot_bargraph(data, columns, bins=30):
-    x, y = columns  # unpack tuple
+def plot_bargraph(full, columns, bins=30, uniqueness_threshold=0.8):
+    x, y = columns
 
-    plt.figure(figsize=(100,60))
+    is_x_identifier = (
+        full[x].nunique() / len(full) > uniqueness_threshold or
+        any(keyword in x.lower() for keyword in ['aadhar', 'email', 'id', 'phone', 'pan'])
+    )
+    if is_x_identifier:
+        print(f"Skipping plot: '{x}' is likely an identifier or has too many unique values.")
+        return
 
-    # Decide plot type based on number of unique values in y
-    if pd.api.types.is_numeric_dtype(data[y]) and data[y].nunique() > 5:
-        # Continuous variable -> histogram
-        plt.hist(data[y].dropna(), bins=bins, density=True, alpha=0.7, color='g')
+    plt.figure(figsize=(8, 4))
+
+    if pd.api.types.is_numeric_dtype(full[y]) and full[y].nunique() > 20:
+        plt.hist(full[y].dropna(), bins=bins, density=True, alpha=0.7, color='g')
         plt.title(f"Distribution of {y}")
         plt.xlabel(y)
         plt.ylabel("Probability Density")
     else:
-        # Treat as categorical -> bar plot
-        grouped = data.groupby(x)[y].mean().sort_values(ascending=False)
+        grouped = full.groupby(x)[y].mean().sort_values(ascending=False)
         sns.barplot(x=grouped.index, y=grouped.values)
-        plt.title(f"Average {y} by {x}")
+        plt.title(f"{y} by {x}")
         plt.xticks(rotation=45)
 
     plt.tight_layout()
     plt.show()
+
+
 
 def plot_value_counts(df):
     for col in df.select_dtypes(include='object').columns:

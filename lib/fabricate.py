@@ -2,7 +2,8 @@ from faker import Faker
 import numpy as np
 import pandas as pd
 import random as rd
-from scipy.stats import truncnorm
+from scipy.stats import truncnorm, norm
+from numpy.linalg import eigh
 
 n = 10000  # data-points
 fake = Faker('en_IN')  # Faker instance
@@ -51,42 +52,57 @@ def create_truncated_norm_distribution(
     return data
 
 
-def create_correlated_norm_distribution(
-        stats_list,  # list of (mean, std, min, max) for each variable
-        correlation_matrix,  # correlation matrix (len(stats_list) x len(stats_list))
+def create_correlated_distribution(
+        stats_list,           # list of (mean, std, min, max, type) — type in {"continuous", "binary"}
+        correlation_matrix,   # correlation matrix (len(stats_list) x len(stats_list))
         n=10000,
         precision=2,
         nan_probability=0
 ):
     num_vars = len(stats_list)
-    correlation_matrix = np.array(correlation_matrix)
+    correlation_matrix = np.array(correlation_matrix, dtype=float)
 
-    # Validate matrix size
+    # --- Step 1: Validate correlation matrix size ---
     if correlation_matrix.shape != (num_vars, num_vars):
         raise ValueError("Correlation matrix size does not match number of variables")
 
-    # Create covariance matrix
+    # --- Step 2: Ensure positive semi-definiteness ---
+    eigvals, eigvecs = eigh(correlation_matrix)
+    if np.any(eigvals < 0):
+        eigvals[eigvals < 0] = 0  # force non-negative eigenvalues
+        correlation_matrix = (eigvecs @ np.diag(eigvals) @ eigvecs.T)
+
+    # --- Step 3: Generate base multivariate normal ---
     std_devs = np.array([s[1] for s in stats_list])
     cov_matrix = correlation_matrix * np.outer(std_devs, std_devs)
-
-    # Generate correlated normal samples
     means = np.array([s[0] for s in stats_list])
-    raw_data = np.random.multivariate_normal(means, cov_matrix, size=n)
+    mvn_data = np.random.multivariate_normal(means, cov_matrix, size=n)
 
-    # Truncate values while keeping correlation
-    for i, (mean, std, min_val, max_val) in enumerate(stats_list):
-        raw_data[:, i] = np.clip(raw_data[:, i], min_val, max_val)
+    # --- Step 4: Transform each column according to type ---
+    for i, (mean, std, min_val, max_val, var_type) in enumerate(stats_list):
 
-    # Round
-    raw_data = np.round(raw_data, precision)
+        if var_type == "continuous":
+            # Convert to truncated normal
+            a, b = (min_val - mean) / std, (max_val - mean) / std
+            mvn_data[:, i] = truncnorm(a, b, loc=mean, scale=std).rvs(size=n)
 
-    # Inject NaNs
+            # Round to given precision
+            mvn_data[:, i] = np.round(mvn_data[:, i], precision)
+
+        elif var_type == "binary":
+            # Map MVN variable through normal CDF -> uniform -> binary
+            prob = norm.cdf((mvn_data[:, i] - mean) / std)  # convert to [0,1]
+            mvn_data[:, i] = (prob > 0.5).astype(int)
+
+        else:
+            raise ValueError(f"Unknown variable type: {var_type}")
+
+    # --- Step 5: Inject NaNs ---
     if nan_probability > 0:
-        mask = np.random.rand(*raw_data.shape) < nan_probability
-        raw_data[mask] = np.nan
+        mask = np.random.rand(*mvn_data.shape) < nan_probability
+        mvn_data[mask] = np.nan
 
-    return raw_data
-
+    return mvn_data
 
 def create_correlated_positive_norm_distribution(
         stats,
