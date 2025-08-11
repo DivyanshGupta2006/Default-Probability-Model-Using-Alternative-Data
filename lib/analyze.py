@@ -42,14 +42,9 @@ def plot_univariate_distributions(df):
             else:
                 print(f"--> Skipping distribution plot for '{col}': Not a plottable categorical column.")
 
-
-# ==============================================================================
-#  Supporting Plotting Functions (Heatmap, Pairplot, etc.)
-# ==============================================================================
-
 def plot_heatmap(data, vmax=1.0):
     if data.shape[0] < 2 or data.shape[1] < 2: return
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(18, 12))
     sns.heatmap(data, cmap='coolwarm', annot=True, annot_kws={'size': 12}, vmax=vmax, fmt=".2f")
     plt.title("Correlation Heatmap of Numerical Features", fontsize=16)
     plt.show()
@@ -91,11 +86,6 @@ def plot_bivariate_analysis(df):
                 plt.tight_layout()
                 plt.show()
 
-
-# ==============================================================================
-#  UPDATED: Main EDA Function
-# ==============================================================================
-
 def perform_eda(df):
     print(f"Analyzing DataFrame...")
     print(f"Shape: {df.shape}")
@@ -121,10 +111,9 @@ def perform_eda(df):
         plot_heatmap(correlation_matrix)
         plot_pairplot(df)
 
-    # --- Step 3: Bivariate Analysis (Optional but Recommended) ---
-    # This shows how numeric variables change across different categories.
     plot_bivariate_analysis(df)
 
     print("\n" + "=" * 60)
     print("      Exploratory Data Analysis Complete")
     print("=" * 60 + "\n")
+    df.set_index('Aadhar No.', inplace=True)
