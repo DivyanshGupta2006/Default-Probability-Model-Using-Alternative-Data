@@ -2,7 +2,8 @@ from faker import Faker
 import numpy as np
 import pandas as pd
 import random as rd
-from scipy.stats import truncnorm
+from scipy.stats import truncnorm, norm
+from numpy.linalg import eigh
 
 n = 10000  # data-points
 fake = Faker('en_IN')  # Faker instance
@@ -51,43 +52,69 @@ def create_truncated_norm_distribution(
     return data
 
 
-def create_correlated_norm_distribution(
-        stats_list,  # list of (mean, std, min, max) for each variable
-        correlation_matrix,  # correlation matrix (len(stats_list) x len(stats_list))
-        n=10000,
-        precision=2,
-        nan_probability=0
+def create_correlated_distribution(
+    stats_list,              # list of (mean, std, min, max, type)
+    correlation_matrix,      # (p x p) correlation matrix in the SAME order as stats_list
+    n=10000,
+    precision=2,
+    nan_probability=0.0,
+    eps_regularize=1e-8
 ):
-    num_vars = len(stats_list)
-    correlation_matrix = np.array(correlation_matrix)
+    p = len(stats_list)
+    corr = np.array(correlation_matrix, dtype=float)
 
-    # Validate matrix size
-    if correlation_matrix.shape != (num_vars, num_vars):
-        raise ValueError("Correlation matrix size does not match number of variables")
+    # --- 0. quick checks ---
+    if corr.shape != (p, p):
+        raise ValueError("correlation_matrix must be shape (len(stats_list), len(stats_list))")
 
-    # Create covariance matrix
-    std_devs = np.array([s[1] for s in stats_list])
-    cov_matrix = correlation_matrix * np.outer(std_devs, std_devs)
+    # Symmetrize and force PSD (clip negative eigenvalues)
+    corr = (corr + corr.T) / 2.0
+    eigvals, eigvecs = eigh(corr)
+    if np.any(eigvals < 0):
+        eigvals[eigvals < 0] = 0.0
+        corr = eigvecs @ np.diag(eigvals) @ eigvecs.T
+        # rescale diagonal to 1 (numerical fix)
+        d = np.sqrt(np.diag(corr))
+        corr = corr / np.outer(d, d)
+        np.fill_diagonal(corr, 1.0)
 
-    # Generate correlated normal samples
-    means = np.array([s[0] for s in stats_list])
-    raw_data = np.random.multivariate_normal(means, cov_matrix, size=n)
+    # tiny regularization to ensure positive-definite for sampling
+    corr = corr + np.eye(p) * eps_regularize
 
-    # Truncate values while keeping correlation
-    for i, (mean, std, min_val, max_val) in enumerate(stats_list):
-        raw_data[:, i] = np.clip(raw_data[:, i], min_val, max_val)
+    # --- 1. Sample correlated standard normals (Gaussian copula) ---
+    z = np.random.multivariate_normal(mean=np.zeros(p), cov=corr, size=n)  # shape (n, p)
 
-    # Round
-    raw_data = np.round(raw_data, precision)
+    # --- 2. Map to uniforms using standard normal CDF ---
+    u = norm.cdf(z)   # values in (0,1), shape (n,p)
 
-    # Inject NaNs
-    if nan_probability > 0:
-        mask = np.random.rand(*raw_data.shape) < nan_probability
-        raw_data[mask] = np.nan
+    # --- 3. Transform uniforms to target marginals using inverse CDFs ---
+    out = np.empty_like(u, dtype=float)
+    for i, (mean, std, min_val, max_val, var_type) in enumerate(stats_list):
+        if var_type == "continuous":
+            # truncated normal parameters relative to standard normal
+            a, b = (min_val - mean) / std, (max_val - mean) / std
+            # ppf of truncnorm maps uniform -> truncated normal with desired mean/std
+            out[:, i] = truncnorm.ppf(u[:, i], a=a, b=b, loc=mean, scale=std)
+            out[:, i] = np.round(out[:, i], precision)
 
-    return raw_data
+        elif var_type == "binary":
+            # Interpret 'mean' as probability if in [0,1]
+            if 0.0 <= mean <= 1.0:
+                p_true = mean
+            else:
+                # fallback: convert mean/std to a probability via normal cdf (less preferred)
+                p_true = norm.cdf((mean) / max(std, 1e-8))
+            out[:, i] = (u[:, i] < p_true).astype(int)
 
+        else:
+            raise ValueError(f"Unknown var_type '{var_type}' for variable index {i}")
 
+    # --- 4. Inject NaNs if requested ---
+    if nan_probability and nan_probability > 0:
+        mask = np.random.rand(*out.shape) < nan_probability
+        out[mask] = np.nan
+
+    return out
 def create_correlated_positive_norm_distribution(
         stats,
         data,
