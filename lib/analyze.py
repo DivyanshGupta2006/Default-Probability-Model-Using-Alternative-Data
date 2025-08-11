@@ -1,14 +1,7 @@
-# This is the full content for your file: lib/analyze.py
-
 import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-
-
-# ==============================================================================
-#  NEW: Function to Plot Individual Column Distributions (Your Request)
-# ==============================================================================
 
 def plot_univariate_distributions(df):
     """
@@ -113,9 +106,6 @@ def perform_eda(df):
     print(f"Last 5 rows: \n{df.tail()}")
     print(f"Null count per column: \n{df.isnull().sum()}")
     print(f"Descriptive Stats: \n{df.describe(include='all')}")
-    """
-    Performs a full Exploratory Data Analysis with a focus on distributions.
-    """
     print("\n" + "=" * 60)
     print("      Starting Comprehensive Exploratory Data Analysis")
     print("=" * 60 + "\n")
