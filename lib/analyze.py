@@ -10,7 +10,7 @@ def plot_univariate_distributions(df):
     - For categorical columns, it plots a probability bar chart.
     """
     print("\n" + "=" * 60)
-    print("      Generating Univariate Probability Distributions")
+    print("Generating Univariate Probability Distributions")
     print("=" * 60 + "\n")
 
     for col in df.columns:
