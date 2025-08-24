@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from lib import config
+from src.utils import config
 
 
 def read_raw_data(filename):

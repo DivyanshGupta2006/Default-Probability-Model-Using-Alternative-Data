@@ -2,7 +2,7 @@ import os
 import subprocess
 import zipfile
 import sys
-from lib import config
+from src.utils import config
 
 data_dir = config.RAW_DATA_DIRECTORY
 
