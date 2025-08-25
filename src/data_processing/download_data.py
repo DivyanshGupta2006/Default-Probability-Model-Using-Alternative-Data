@@ -2,9 +2,17 @@ import os
 import subprocess
 import zipfile
 import sys
-from src.utils import config
+import yaml
+from pathlib import Path
 
-data_dir = config.RAW_DATA_DIRECTORY
+current_file_path = Path(__file__)
+root_dir = current_file_path.parent.parent.parent
+config_path = root_dir / "config.yaml"
+
+with open(config_path, 'r') as file:
+    config = yaml.safe_load(file)
+
+data_dir = config['paths']['raw_data_directory']
 
 competition_name = "home-credit-default-risk"
 

@@ -1,12 +1,19 @@
 import pandas as pd
 import os
-from src.utils import config
+import yaml
+from pathlib import Path
 
+current_file_path = Path(__file__)
+root_dir = current_file_path.parent.parent.parent
+config_path = root_dir / "config.yaml"
+
+with open(config_path, 'r') as file:
+    config = yaml.safe_load(file)
 
 def read_raw_data(filename):
     print(f"Reading file: {filename}")
 
-    file_path = os.path.join(config.RAW_DATA_DIRECTORY, filename)
+    file_path = os.path.join(config['paths']['raw_data_directory'], filename)
 
     if not os.path.exists(file_path):
         print(f"Error: File not found at path: {file_path}")
@@ -20,7 +27,7 @@ def read_raw_data(filename):
 def read_processed_data(filename):
     print(f"Reading file: {filename}")
 
-    file_path = os.path.join(config.PROCESSED_DATA_DIRECTORY, filename)
+    file_path = os.path.join(config['paths']['processed_data_directory'], filename)
 
     if not os.path.exists(file_path):
         print(f"Error: File not found at path: {file_path}")
