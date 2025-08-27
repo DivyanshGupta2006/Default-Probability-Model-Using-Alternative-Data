@@ -2,6 +2,7 @@
 paths:
   raw_data_directory: "../../data/raw_data/"
   processed_data_directory: "../../data/processed_data/"
+  model_data_directory: "../../models/"
 
 # data related variables
 data:

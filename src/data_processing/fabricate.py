@@ -5,149 +5,127 @@ import random as rd
 from scipy.stats import truncnorm, norm
 from numpy.linalg import eigh
 
-n = 10000  # data-points
-fake = Faker('en_IN')  # Faker instance
-Faker.seed(42)
-np.random.seed(42)
-rd.seed(42)
+from scipy.linalg import block_diag
 
+def fabricate_features(merged_df, rng_seed=42):
+    rng = np.random.default_rng(seed=rng_seed)  # reproducibility
 
-def fabricate_base_data(
-        num_rows=n,
-        id_range=(10 ** 11, 10 ** 12 - 1),
-        age_stats=(36.17, 12.68, 18, 65),
-        city_categories=('TIER-I', 'TIER-II', 'TIER-III', 'VILLAGE'),
-        city_stats=(25.9, 3.1, 2.2, 68.8),
-        gender_categories=('Male', 'Female', 'Other'),
-        gender_stats=(51.55, 48.41, 0.04)
-):
-    data = []
-    aadhar = rd.sample(range(id_range[0], id_range[1] + 1), num_rows)
-    ages = create_truncated_norm_distribution(age_stats, precision=0)
-    genders = create_categorical_distribution(gender_categories, gender_stats)
-    cities = create_categorical_distribution(city_categories, city_stats)
-    for _ in range(num_rows):
-        aadhar_no = aadhar[_]
-        age = ages[_]
-        gender = genders[_]
-        city = cities[_]
-        name = fake.name()
-        phone = fake.phone_number()
-        data.append([aadhar_no, name, age, gender, city, phone])
-    df = pd.DataFrame(data, columns=['Aadhar No.', 'Name', 'Age', 'Gender', 'City', 'Phone No.'])
-    df.set_index('Aadhar No.', inplace=True)
-    return df
+    # --- Statistics definition ---
+    stats_list = [
+        (1.426, 0.57, 0, 20, "continuous"),       # RCHRG_FRQ
+        (1.27, 0.9, 0, 10, "continuous"),         # TRD_ACC
+        (3, 2, 0, 12, "continuous"),              # OFC_DOC_EXP
+        (0.39, 0.65, 0, 3, "continuous"),         # GST_FIL_DEF
+        (1.2, 0.8, 0, 60, "continuous"),          # SIM_CARD_FAIL
+        (0.35, 0.7, 0, 25, "continuous"),         # ECOM_SHOP_RETURN
+        (9500, 6500, 2500, 35000, "continuous"),  # UTILITY_BIL
+        (0.12, 0.5, 0, 100, "continuous"),        # REG_VEH_CHALLAN
+        ((0, 1), (0.5, 0.5), "binary"),           # LINKEDIN_DATA
+        (500, 200, 50, 2000, "continuous"),       # REV_FRM_CNSMR_APPS
+        (2.6, 0.9, 0, 6, "continuous"),           # NO_OF_SMRT_CARD
+        (2.05, 1.5, 0, 8, "continuous"),          # NO_TYPE_OF_ACC
+        (("Strongly Negative","Negative","Neutral","Positive","Strongly Positive"),
+         (20, 32, 32, 12, 4), "categorical")      # SENTI_OF_SOCIAL_M
+    ]
 
+    numeric_columns = [
+        "Recharge Frequency (per month)",              # RCHRG_FRQ
+        "Trading Accounts",                            # TRD_ACC
+        "Official Document Expiry (per year)",         # OFC_DOC_EXP
+        "Default in GST filing (per quarter)",         # GST_FIL_DEF
+        "SIM Card Failures",                           # SIM_CARD_FAIL
+        "Truecaller Flag (Category)",                  # TRUECALR_FLAG
+        "E-commerce Shopping Returns (per month)",     # ECOM_SHOP_RETURN
+        "Utility Bills (per month)",                   # UTILITY_BIL
+        "Registered Vehicle Challans (per year)",      # REG_VEH_CHALLAN
+        "LinkedIn Data (Presence)",                    # LINKEDIN_DATA
+        "Revenue from Consumer Apps",                  # REV_FRM_CNSMR_APPS
+        "Number of Smart Cards",                       # NO_OF_SMRT_CARD
+        "Number of Account Types",                     # NO_TYPE_OF_ACC
+        "Sentiment of Social Media",                   # SENTI_OF_SOCIAL_M
+    ]
 
-def create_truncated_norm_distribution(
-        stats,
-        precision=2,
-        nan_probability=0):
-    a = (stats[2] - stats[0]) / stats[1]
-    b = (stats[3] - stats[0]) / stats[1]
-    data = truncnorm(a, b, loc=stats[0], scale=stats[1]).rvs(size=n)
-    data = np.round(data, precision)
-    mask = np.random.rand(n) < nan_probability
-    data[mask] = np.nan
-    return data
+    # --- Define correlation blocks ---
+    corr_financial = np.array([
+        [1.0, 0.42, 0.35, 0.38, 0.30],
+        [0.42, 1.0, 0.33, 0.36, 0.32],
+        [0.35, 0.33, 1.0, 0.40, 0.28],
+        [0.38, 0.36, 0.40, 1.0, 0.34],
+        [0.30, 0.32, 0.28, 0.34, 1.0]
+    ])
 
+    corr_compliance = np.array([
+        [1.0, 0.40, 0.35],
+        [0.40, 1.0, 0.38],
+        [0.35, 0.38, 1.0]
+    ])
 
-def create_correlated_distribution(
-    stats_list,              # list of (mean, std, min, max, type)
-    correlation_matrix,      # (p x p) correlation matrix in the SAME order as stats_list
-    n=10000,
-    precision=2,
-    nan_probability=0.0,
-    eps_regularize=1e-8
-):
-    p = len(stats_list)
-    corr = np.array(correlation_matrix, dtype=float)
+    corr_digital = np.array([
+        [1.0, 0.45, 0.33, 0.28],
+        [0.45, 1.0, 0.30, 0.26],
+        [0.33, 0.30, 1.0, 0.32],
+        [0.28, 0.26, 0.32, 1.0]
+    ])
 
-    # --- 0. quick checks ---
-    if corr.shape != (p, p):
-        raise ValueError("correlation_matrix must be shape (len(stats_list), len(stats_list))")
+    corr_behavioral = np.array([
+        [1.0, 0.36],
+        [0.36, 1.0]
+    ])
 
-    # Symmetrize and force PSD (clip negative eigenvalues)
-    corr = (corr + corr.T) / 2.0
-    eigvals, eigvecs = eigh(corr)
-    if np.any(eigvals < 0):
-        eigvals[eigvals < 0] = 0.0
-        corr = eigvecs @ np.diag(eigvals) @ eigvecs.T
-        # rescale diagonal to 1 (numerical fix)
-        d = np.sqrt(np.diag(corr))
-        corr = corr / np.outer(d, d)
-        np.fill_diagonal(corr, 1.0)
+    correlation_matrix = block_diag(
+        corr_financial,
+        corr_compliance,
+        corr_digital,
+        corr_behavioral
+    )
 
-    # tiny regularization to ensure positive-definite for sampling
-    corr = corr + np.eye(p) * eps_regularize
+    # --- Generate correlated data ---
+    n = len(merged_df)
+    L = np.linalg.cholesky(correlation_matrix)
+    uncorrelated = rng.normal(size=(n, correlation_matrix.shape[0]))
+    correlated = uncorrelated @ L.T
 
-    # --- 1. Sample correlated standard normals (Gaussian copula) ---
-    z = np.random.multivariate_normal(mean=np.zeros(p), cov=corr, size=n)  # shape (n, p)
+    scaled_data = []
+    valid_numeric_columns = []
 
-    # --- 2. Map to uniforms using standard normal CDF ---
-    u = norm.cdf(z)   # values in (0,1), shape (n,p)
+    for i, stats in enumerate(stats_list):
+        if isinstance(stats[0], tuple):  # skip categorical
+            continue
 
-    # --- 3. Transform uniforms to target marginals using inverse CDFs ---
-    out = np.empty_like(u, dtype=float)
-    for i, (mean, std, min_val, max_val, var_type) in enumerate(stats_list):
-        if var_type == "continuous":
-            # truncated normal parameters relative to standard normal
-            a, b = (min_val - mean) / std, (max_val - mean) / std
-            # ppf of truncnorm maps uniform -> truncated normal with desired mean/std
-            out[:, i] = truncnorm.ppf(u[:, i], a=a, b=b, loc=mean, scale=std)
-            out[:, i] = np.round(out[:, i], precision)
+        mean, std, min_val, max_val, _ = stats
+        col = correlated[:, i]
+        col = (col - np.mean(col)) / np.std(col)  # standardize
+        col = col * std + mean
+        col = np.clip(col, min_val, max_val)
 
-        elif var_type == "binary":
-            # Interpret 'mean' as probability if in [0,1]
-            if 0.0 <= mean <= 1.0:
-                p_true = mean
-            else:
-                # fallback: convert mean/std to a probability via normal cdf (less preferred)
-                p_true = norm.cdf((mean) / max(std, 1e-8))
-            out[:, i] = (u[:, i] < p_true).astype(int)
+        scaled_data.append(col.astype("float32"))
+        valid_numeric_columns.append(numeric_columns[i])
 
-        else:
-            raise ValueError(f"Unknown var_type '{var_type}' for variable index {i}")
+    synthetic_df = pd.DataFrame(
+        np.column_stack(scaled_data),
+        columns=valid_numeric_columns
+    )
 
-    # --- 4. Inject NaNs if requested ---
-    if nan_probability and nan_probability > 0:
-        mask = np.random.rand(*out.shape) < nan_probability
-        out[mask] = np.nan
+    # --- Add to merged_df ---
+    merged_df = pd.concat([merged_df.reset_index(drop=True), synthetic_df], axis=1)
 
-    return out
-def create_correlated_positive_norm_distribution(
-        stats,
-        data,
-        correlation_columns,
-        correlation,
-        precision=2,
-        nan_probability=0
-):
-    data = []
-    return data
+    # Add categorical variables
+    truecaller_categories = ('Red', 'Blue', 'Golden')
+    truecaller_stats = (0.2, 0.75, 0.05)
 
+    social_sentiments_categories = (
+        'Strongly Negative', 'Negative', 'Neutral', 'Positive', 'Strongly Positive'
+    )
+    social_sentiments_stats = (20, 32, 32, 12, 4)
 
-def create_categorical_distribution(
-        categories,
-        stats,
-        nan_probability=0
-):
-    data = []
-    for _ in range(n):
-        if np.random.rand() < nan_probability:
-            data.append(np.nan)
-        else:
-            data.append(rd.choices(categories, weights=stats, k=1)[0])
+    merged_df['TrueCaller Flag'] = np.random.choice(
+        truecaller_categories, size=len(merged_df), p=truecaller_stats
+    )
 
-    return data
+    merged_df['Sentiment on Social Media'] = np.random.choice(
+        social_sentiments_categories,
+        size=len(merged_df),
+        p=np.array(social_sentiments_stats) / np.sum(social_sentiments_stats)
+    )
 
-
-def create_correlated_categorical_distribution(
-        categories,
-        stats,
-        correlation_columns,
-        correlation,
-        nan_probability=0
-):
-    data = []
-    return data
+    return merged_df
