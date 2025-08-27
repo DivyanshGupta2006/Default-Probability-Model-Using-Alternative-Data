@@ -1,33 +1,50 @@
 import pandas as pd
 import numpy as np
+import yaml
+from pathlib import Path
+from src.utils import read_file
 
+current_file_path = Path(__file__)
+root_dir = current_file_path.parent.parent
+config_path = root_dir / "config.yaml"
 
-def preprocess_data(df):
-    nominal_cols = ["Gender", "City", "Occupation", "Partner", "Betting Apps", "TrueCaller Flag",
-                    "Sentiment on Social Media"]  # not ordered
-    ordinal_cols = ["Education", "Reviews received"]  # ordered
-    id_cols = ["Name", "Age", "Phone No."]
-    education_order = ['Primary or less', 'Secondary', 'Tertiary or more']
-    reviews_order = ['1 Star', '2 Star', '3 Star', '4 Star', '5 Star']
-    numerical_cols = [col for col in df.columns if col not in nominal_cols and col not in ordinal_cols and col not in id_cols]
+with open(config_path, 'r') as file:
+    config = yaml.safe_load(file)
 
-    for col in numerical_cols:
-        df[col].fillna(df[col].median(), inplace=True)
+def impute_missing_category(df, columns):
+    """
+    Imputes missing values in specified categorical columns by creating
+    a new 'Missing' category.
 
-    for col in nominal_cols + ordinal_cols:
-        df[col].fillna(df[col].mode()[0], inplace=True)
+    Args:
+        df (pd.DataFrame): The DataFrame with missing values.
+        columns (list): A list of categorical column names to impute.
 
+    Returns:
+        pd.DataFrame: The DataFrame with missing values imputed.
+    """
+    df_imputed = df.copy()  # Create a copy to avoid changing the original DataFrame
+    for col in columns:
+        if col in df_imputed.columns:
+            if df_imputed[col].isnull().any():
+                df_imputed[col].fillna('Missing', inplace=True)
+                print(f"✅ Imputed NaN values in '{col}' with 'Missing' category.")
+            else:
+                print(f"ℹ No NaN values found in '{col}'.")
+        else:
+            print(f"⚠ Warning: Column '{col}' not found in the DataFrame.")
+    return df_imputed
 
+df = read_file.read_processed_data("merged_data.csv")
+output_path = config['paths']['processed_data_directory'] + "/processed_data.csv"
 
-    df_encoded_nominal = pd.get_dummies(df[nominal_cols], columns=nominal_cols, dtype=int)
+# 2. List categorical columns where you want to impute missing values
+categorical_cols = ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY',]  # example columns
 
-    education_mapping = {category: i for i, category in enumerate(education_order)}
-    reviews_mapping = {category: i for i, category in enumerate(reviews_order)}
+# 3. Apply the function
+df_imputed = impute_missing_category(df, categorical_cols)
 
-    df['Education'] = df['Education'].map(education_mapping)
-    df['Reviews received'] = df['Reviews received'].map(reviews_mapping)
+# 4. Save the new DataFrame
+df_imputed.to_csv(output_path, index=False)
 
-    df_final = df.drop(columns=nominal_cols)
-    df_final = pd.concat([df_final, df_encoded_nominal], axis=1)
-
-    df_final.to_csv('data/preprocessed_fabricated_data.csv')
+print(f"\n✅ Cleaned dataset saved at: {output_path}")
