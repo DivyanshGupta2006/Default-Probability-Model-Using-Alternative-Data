@@ -1,50 +1,41 @@
-import pandas as pd
-import numpy as np
 import yaml
 from pathlib import Path
 from src.utils import read_file
 
+# --- File and Config Loading ---
 current_file_path = Path(__file__)
-root_dir = current_file_path.parent.parent
+root_dir = current_file_path.parent.parent.parent
 config_path = root_dir / "config.yaml"
 
 with open(config_path, 'r') as file:
     config = yaml.safe_load(file)
 
 def impute_missing_category(df, columns):
-    """
-    Imputes missing values in specified categorical columns by creating
-    a new 'Missing' category.
-
-    Args:
-        df (pd.DataFrame): The DataFrame with missing values.
-        columns (list): A list of categorical column names to impute.
-
-    Returns:
-        pd.DataFrame: The DataFrame with missing values imputed.
-    """
-    df_imputed = df.copy()  # Create a copy to avoid changing the original DataFrame
+    df_imputed = df.copy()
     for col in columns:
         if col in df_imputed.columns:
             if df_imputed[col].isnull().any():
-                df_imputed[col].fillna('Missing', inplace=True)
-                print(f"✅ Imputed NaN values in '{col}' with 'Missing' category.")
-            else:
-                print(f"ℹ No NaN values found in '{col}'.")
-        else:
-            print(f"⚠ Warning: Column '{col}' not found in the DataFrame.")
+                df_imputed.loc[:, col] = df_imputed[col].fillna('Missing')
     return df_imputed
 
-df = read_file.read_processed_data("merged_data.csv")
-output_path = config['paths']['processed_data_directory'] + "/processed_data.csv"
+def median_impute(df, columns):
+    # ... (your numerical imputation function code)
+    df_imputed = df.copy()
+    for col in columns:
+        if col in df_imputed.columns:
+            # Corrected to avoid FutureWarning
+            median_value = df_imputed[col].median()
+            df_imputed.loc[:, col] = df_imputed[col].fillna(median_value)
+    return df_imputed
 
-# 2. List categorical columns where you want to impute missing values
-categorical_cols = ['CODE_GENDER', 'FLAG_OWN_CAR', 'FLAG_OWN_REALTY',]  # example columns
+def clean(df):
+    categorical_cols = config['data']['categorical_fabricated']
+    numerical_cols = config['data']['numerical_fabricated']
 
-# 3. Apply the function
-df_imputed = impute_missing_category(df, categorical_cols)
+    df_imputed_cat = impute_missing_category(df, categorical_cols)
+    df_imputed_final = median_impute(df_imputed_cat, numerical_cols)
 
-# 4. Save the new DataFrame
-df_imputed.to_csv(output_path, index=False)
+    output_path = config['paths']['processed_data_directory'] + "/final_data.csv"
+    df_imputed_final.to_csv(output_path, index=False)
 
-print(f"\n✅ Cleaned dataset saved at: {output_path}")
+    return df_imputed_final

@@ -4,6 +4,7 @@ from pathlib import Path
 import yaml
 from pathlib import Path
 
+from src.data_processing import preprocess
 from src.utils import read_file
 
 current_file_path = Path(__file__)
@@ -29,10 +30,10 @@ def merge_data():
 
     aggregations = {}
 
-    for col in config['data']['numerical']:
+    for col in config['data']['numerical_pre_existing']:
         aggregations[col] = ['min', 'max', 'mean', 'sum', 'std']
 
-    for col in config['data']['categorical']:
+    for col in config['data']['categorical_pre_existing']:
         aggregations[col] = ['count', 'nunique', ('mode', lambda x: x.mode().iloc[0] if not x.mode().empty else None)]
 
     # 3. Group by ID and Aggregate
@@ -43,5 +44,15 @@ def merge_data():
 
     # 5. Reset Index to make SK_ID_CURR a column again
     agg_df = agg_df.reset_index()
+
+    data_dir = config['paths']['processed_data_directory']
+
+    if not os.path.exists(data_dir):
+        print(f"Creating directory: {data_dir}")
+        os.makedirs(data_dir)
+    else:
+        print(f"Directory already exists: {data_dir}")
+
+    agg_df.to_csv(f'{config['paths']['processed_data_directory']}/merged_data_pre_existing.csv', index=False)
 
     return agg_df

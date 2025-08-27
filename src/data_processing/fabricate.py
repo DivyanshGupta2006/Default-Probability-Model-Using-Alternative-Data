@@ -1,131 +1,135 @@
-from faker import Faker
 import numpy as np
 import pandas as pd
-import random as rd
-from scipy.stats import truncnorm, norm
-from numpy.linalg import eigh
-
 from scipy.linalg import block_diag
+import yaml
+from pathlib import Path
 
+current_file_path = Path(__file__)
+root_dir = current_file_path.parent.parent.parent
+config_path = root_dir / "config.yaml"
+
+with open(config_path, 'r') as file:
+    config = yaml.safe_load(file)
+
+# --- Helper for categorical distributions ---
+def create_categorical_distribution(categories, stats, n, nan_probability=0):
+    """Generates a series of categorical data."""
+    probs = np.array(stats) / np.sum(stats)
+    if np.random.rand() < nan_probability:
+        return pd.Series([np.nan] * n)
+    return pd.Series(np.random.choice(categories, size=n, p=probs))
+
+
+# --- Main fabrication function ---
 def fabricate_features(merged_df, rng_seed=42):
-    rng = np.random.default_rng(seed=rng_seed)  # reproducibility
+    """
+    Generates and adds synthetic features to the provided DataFrame.
+    """
+    print("Starting feature fabrication...")
+    rng = np.random.default_rng(seed=rng_seed)
+    n_samples = len(merged_df)
 
-    # --- Statistics definition ---
-    stats_list = [
-        (1.426, 0.57, 0, 20, "continuous"),       # RCHRG_FRQ
-        (1.27, 0.9, 0, 10, "continuous"),         # TRD_ACC
-        (3, 2, 0, 12, "continuous"),              # OFC_DOC_EXP
-        (0.39, 0.65, 0, 3, "continuous"),         # GST_FIL_DEF
-        (1.2, 0.8, 0, 60, "continuous"),          # SIM_CARD_FAIL
-        (0.35, 0.7, 0, 25, "continuous"),         # ECOM_SHOP_RETURN
-        (9500, 6500, 2500, 35000, "continuous"),  # UTILITY_BIL
-        (0.12, 0.5, 0, 100, "continuous"),        # REG_VEH_CHALLAN
-        ((0, 1), (0.5, 0.5), "binary"),           # LINKEDIN_DATA
-        (500, 200, 50, 2000, "continuous"),       # REV_FRM_CNSMR_APPS
-        (2.6, 0.9, 0, 6, "continuous"),           # NO_OF_SMRT_CARD
-        (2.05, 1.5, 0, 8, "continuous"),          # NO_TYPE_OF_ACC
-        (("Strongly Negative","Negative","Neutral","Positive","Strongly Positive"),
-         (20, 32, 32, 12, 4), "categorical")      # SENTI_OF_SOCIAL_M
+    # --- Feature Definitions ---
+    feature_definitions = [
+        # Financial Group
+        {'name': "Recharge Frequency (per month)", 'short_name': 'RCHRG_FRQ', 'type': 'numeric',
+         'params': (1.426, 0.57, 0, 20), 'corr_group': 'financial'},
+        {'name': "Trading Accounts", 'short_name': 'TRD_ACC', 'type': 'numeric', 'params': (1.27, 0.9, 0, 10),
+         'corr_group': 'financial'},
+        {'name': "Revenue from Consumer Apps", 'short_name': 'REV_FRM_CNSMR_APPS', 'type': 'numeric',
+         'params': (500, 200, 50, 2000), 'corr_group': 'financial'},
+        {'name': "Number of Smart Cards", 'short_name': 'NO_OF_SMRT_CARD', 'type': 'numeric',
+         'params': (2.6, 0.9, 0, 6), 'corr_group': 'financial'},
+        {'name': "Number of Account Types", 'short_name': 'NO_TYPE_OF_ACC', 'type': 'numeric',
+         'params': (2.05, 1.5, 0, 8), 'corr_group': 'financial'},
+        # Compliance Group
+        {'name': "Official Document Expiry (per year)", 'short_name': 'OFC_DOC_EXP', 'type': 'numeric',
+         'params': (3, 2, 0, 12), 'corr_group': 'compliance'},
+        {'name': "Default in GST filing (per quarter)", 'short_name': 'GST_FIL_DEF', 'type': 'numeric',
+         'params': (0.39, 0.65, 0, 3), 'corr_group': 'compliance'},
+        {'name': "Registered Vehicle Challans (per year)", 'short_name': 'REG_VEH_CHALLAN', 'type': 'numeric',
+         'params': (0.12, 0.5, 0, 100), 'corr_group': 'compliance'},
+        # Digital Group
+        {'name': "SIM Card Failures", 'short_name': 'SIM_CARD_FAIL', 'type': 'numeric', 'params': (1.2, 0.8, 0, 60),
+         'corr_group': 'digital'},
+        {'name': "E-commerce Shopping Returns (per month)", 'short_name': 'ECOM_SHOP_RETURN', 'type': 'numeric',
+         'params': (0.35, 0.7, 0, 25), 'corr_group': 'digital'},
+        {'name': "Utility Bills (per month)", 'short_name': 'UTILITY_BIL', 'type': 'numeric',
+         'params': (9500, 6500, 2500, 35000), 'corr_group': 'digital'},
+        # Standalone Features
+        {'name': "LinkedIn Data (Presence)", 'short_name': 'LINKEDIN_DATA', 'type': 'binary',
+         'params': ((0, 1), (0.5, 0.5))},
+        {'name': "Truecaller Flag", 'short_name': 'TRUECALR_FLAG', 'type': 'categorical',
+         'params': (('Red', 'Blue', 'Golden'), (0.2, 0.75, 0.05))}
     ]
 
-    numeric_columns = [
-        "Recharge Frequency (per month)",              # RCHRG_FRQ
-        "Trading Accounts",                            # TRD_ACC
-        "Official Document Expiry (per year)",         # OFC_DOC_EXP
-        "Default in GST filing (per quarter)",         # GST_FIL_DEF
-        "SIM Card Failures",                           # SIM_CARD_FAIL
-        "Truecaller Flag (Category)",                  # TRUECALR_FLAG
-        "E-commerce Shopping Returns (per month)",     # ECOM_SHOP_RETURN
-        "Utility Bills (per month)",                   # UTILITY_BIL
-        "Registered Vehicle Challans (per year)",      # REG_VEH_CHALLAN
-        "LinkedIn Data (Presence)",                    # LINKEDIN_DATA
-        "Revenue from Consumer Apps",                  # REV_FRM_CNSMR_APPS
-        "Number of Smart Cards",                       # NO_OF_SMRT_CARD
-        "Number of Account Types",                     # NO_TYPE_OF_ACC
-        "Sentiment of Social Media",                   # SENTI_OF_SOCIAL_M
-    ]
+    # --- Separate features by type ---
+    numeric_features = [f for f in feature_definitions if f['type'] == 'numeric']
+    categorical_features = [f for f in feature_definitions if f['type'] == 'categorical']
+    binary_features = [f for f in feature_definitions if f['type'] == 'binary']
 
-    # --- Define correlation blocks ---
+    synthetic_df = pd.DataFrame(index=merged_df.index)
+
+    # --- 1. Generate Correlated Numeric Features ---
+    print("Generating correlated numeric features...")
+    # Define correlation blocks
     corr_financial = np.array([
-        [1.0, 0.42, 0.35, 0.38, 0.30],
-        [0.42, 1.0, 0.33, 0.36, 0.32],
-        [0.35, 0.33, 1.0, 0.40, 0.28],
-        [0.38, 0.36, 0.40, 1.0, 0.34],
-        [0.30, 0.32, 0.28, 0.34, 1.0]
+        # Recharge Freq, Trading Acc, Revenue Apps, Smart Cards, Acc Types
+        [1.00, -0.15, 0.10, 0.05, -0.12],  # Recharge Frequency
+        [-0.15, 1.00, 0.20, 0.10, 0.35],  # Trading Accounts
+        [0.10, 0.20, 1.00, 0.15, 0.22],  # Revenue from Consumer Apps
+        [0.05, 0.10, 0.15, 1.00, 0.08],  # Number of Smart Cards
+        [-0.12, 0.35, 0.22, 0.08, 1.00]  # Number of Account Types
     ])
-
+    # Realistic compliance correlations
     corr_compliance = np.array([
-        [1.0, 0.40, 0.35],
-        [0.40, 1.0, 0.38],
-        [0.35, 0.38, 1.0]
+        # Doc Expiry, GST Default, Vehicle Challans
+        [1.00, -0.10, -0.12],  # Official Document Expiry
+        [-0.10, 1.00, 0.25],  # Default in GST filing
+        [-0.12, 0.25, 1.00]  # Registered Vehicle Challans
     ])
-
+    # Realistic digital correlations
     corr_digital = np.array([
-        [1.0, 0.45, 0.33, 0.28],
-        [0.45, 1.0, 0.30, 0.26],
-        [0.33, 0.30, 1.0, 0.32],
-        [0.28, 0.26, 0.32, 1.0]
+        # SIM Failures, E-comm Returns, Utility Bills
+        [1.00, -0.05, -0.28],  # SIM Card Failures
+        [-0.05, 1.00, 0.15],  # E-commerce Shopping Returns
+        [-0.28, 0.15, 1.00]  # Utility Bills
     ])
 
-    corr_behavioral = np.array([
-        [1.0, 0.36],
-        [0.36, 1.0]
-    ])
 
-    correlation_matrix = block_diag(
-        corr_financial,
-        corr_compliance,
-        corr_digital,
-        corr_behavioral
-    )
+    correlation_matrix = block_diag(corr_financial, corr_compliance, corr_digital)
 
-    # --- Generate correlated data ---
-    n = len(merged_df)
+    # Generate base correlated data (standard normal)
     L = np.linalg.cholesky(correlation_matrix)
-    uncorrelated = rng.normal(size=(n, correlation_matrix.shape[0]))
+    uncorrelated = rng.normal(size=(n_samples, len(numeric_features)))
     correlated = uncorrelated @ L.T
 
-    scaled_data = []
-    valid_numeric_columns = []
+    # Scale and clip the data
+    for i, feature in enumerate(numeric_features):
+        mean, std, min_val, max_val = feature['params']
+        col_name = feature['short_name']
 
-    for i, stats in enumerate(stats_list):
-        if isinstance(stats[0], tuple):  # skip categorical
-            continue
+        # This is the correct way to map correlated columns to features
+        col_data = correlated[:, i]
 
-        mean, std, min_val, max_val, _ = stats
-        col = correlated[:, i]
-        col = (col - np.mean(col)) / np.std(col)  # standardize
-        col = col * std + mean
-        col = np.clip(col, min_val, max_val)
+        # Scale to desired mean and std
+        col_data = col_data * std + mean
 
-        scaled_data.append(col.astype("float32"))
-        valid_numeric_columns.append(numeric_columns[i])
+        # Clip to min/max bounds
+        col_data = np.clip(col_data, min_val, max_val)
 
-    synthetic_df = pd.DataFrame(
-        np.column_stack(scaled_data),
-        columns=valid_numeric_columns
-    )
+        synthetic_df[col_name] = col_data.astype('float32')
 
-    # --- Add to merged_df ---
-    merged_df = pd.concat([merged_df.reset_index(drop=True), synthetic_df], axis=1)
+    print("Generating categorical and binary features...")
+    all_other_features = categorical_features + binary_features
+    for feature in all_other_features:
+        col_name = feature['name']
+        categories, stats = feature['params']
+        synthetic_df[col_name] = create_categorical_distribution(categories, stats, n_samples)
 
-    # Add categorical variables
-    truecaller_categories = ('Red', 'Blue', 'Golden')
-    truecaller_stats = (0.2, 0.75, 0.05)
+    print("Combining fabricated features with merged data...")
+    final_df = pd.concat([merged_df.reset_index(drop=True), synthetic_df], axis=1)
 
-    social_sentiments_categories = (
-        'Strongly Negative', 'Negative', 'Neutral', 'Positive', 'Strongly Positive'
-    )
-    social_sentiments_stats = (20, 32, 32, 12, 4)
+    final_df.to_csv(f'{config['paths']['processed_data_directory']}/merged_data_fabricated.csv', index=False)
 
-    merged_df['TrueCaller Flag'] = np.random.choice(
-        truecaller_categories, size=len(merged_df), p=truecaller_stats
-    )
-
-    merged_df['Sentiment on Social Media'] = np.random.choice(
-        social_sentiments_categories,
-        size=len(merged_df),
-        p=np.array(social_sentiments_stats) / np.sum(social_sentiments_stats)
-    )
-
-    return merged_df
+    return final_df
