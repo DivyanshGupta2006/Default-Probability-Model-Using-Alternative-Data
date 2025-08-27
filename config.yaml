@@ -5,20 +5,6 @@ paths:
 
 # data related variables
 data:
-  id: "SK_ID_CURR"
-  target: "TARGET"
-
-files:
-  junk_files:
-    - 'HomeCredit_columns_description.csv'
-    - 'application_test.csv'
-    - 'bureau.csv'
-    - 'bureau_balance.csv'
-    - 'installments_payments.csv'
-    - 'POS_CASH_balance.csv'
-    - 'sample_submission.csv'
-
-features:
   cols_to_use:
     - 'NAME_EDUCATION_TYPE'
     - 'REGION_RATING_CLIENT'
@@ -50,3 +36,32 @@ features:
     - 'NO_TYPE_OF_ACC'
     - 'SK_ID_CURR'
     - 'TARGET'
+  id: "SK_ID_CURR"
+  target: "TARGET"
+  numerical:
+    - 'REGION_RATING_CLIENT'
+    - 'REG_REGION_NOT_LIVE_REGION'
+    - 'REG_REGION_NOT_WORK_REGION'
+    - 'LIVE_REGION_NOT_WORK_REGION'
+    - 'AMT_DRAWINGS_ATM_CURRENT'
+    - 'AMT_DRAWINGS_CURRENT'
+    - 'AMT_DRAWINGS_OTHER_CURRENT'
+    - 'AMT_DRAWINGS_POS_CURRENT'
+    - 'CNT_DRAWINGS_ATM_CURRENT'
+    - 'CNT_DRAWINGS_CURRENT'
+    - 'CNT_DRAWINGS_OTHER_CURRENT'
+    - 'CNT_DRAWINGS_POS_CURRENT'
+    - 'SELLERPLACE_AREA'
+  categorical:
+    - 'NAME_EDUCATION_TYPE'
+    - 'NAME_SELLER_INDUSTRY'
+
+files:
+  junk_files:
+    - 'HomeCredit_columns_description.csv'
+    - 'application_test.csv'
+    - 'bureau.csv'
+    - 'bureau_balance.csv'
+    - 'installments_payments.csv'
+    - 'POS_CASH_balance.csv'
+    - 'sample_submission.csv'

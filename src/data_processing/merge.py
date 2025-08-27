@@ -21,12 +21,27 @@ def merge_data():
     for filename in os.listdir(config['paths']['raw_data_directory']):
         if not filename in config['files']['junk_files']:
             data_point = read_file.read_raw_data(filename)
-            data_point = data_point[[col for col in data_point.columns if col in config['features']['cols_to_use']]]
+            data_point = data_point[[col for col in data_point.columns if col in config['data']['cols_to_use']]]
             if merged_df.empty:
                 merged_df = data_point
             else:
-                merged_df = pd.merge(merged_df, data_point, how="outer", on=config['data']['id'])
+                merged_df = pd.merge(merged_df, data_point, how="left", on=config['data']['id'])
 
+    aggregations = {}
 
+    for col in config['data']['numerical']:
+        aggregations[col] = ['min', 'max', 'mean', 'sum', 'std']
 
-    return merged_df
+    for col in config['data']['categorical']:
+        aggregations[col] = ['count', 'nunique', ('mode', lambda x: x.mode().iloc[0] if not x.mode().empty else None)]
+
+    # 3. Group by ID and Aggregate
+    agg_df = merged_df.groupby('SK_ID_CURR').agg(aggregations)
+
+    # 4. Flatten the Multi-level Column Names
+    agg_df.columns = ['_'.join(col).strip() for col in agg_df.columns.values]
+
+    # 5. Reset Index to make SK_ID_CURR a column again
+    agg_df = agg_df.reset_index()
+
+    return agg_df
