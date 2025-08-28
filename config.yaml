@@ -65,6 +65,7 @@ data:
     - 'REV_FRM_UBER/RAPIDO'
     - 'NO_OF_SMRT_CARD'
     - 'NO_TYPE_OF_ACC'
+    - 'TARGET'
   numerical_pre_existing:
     - 'REGION_RATING_CLIENT'
     - 'REG_REGION_NOT_LIVE_REGION'
@@ -79,6 +80,11 @@ data:
     - 'CNT_DRAWINGS_OTHER_CURRENT'
     - 'CNT_DRAWINGS_POS_CURRENT'
     - 'SELLERPLACE_AREA'
+    - 'TARGET'
+  final_categorical_cols:
+    -
+  final_numerical_cols:
+    -
   categorical_fabricated:
     - 'NAME_EDUCATION_TYPE'
     - 'NAME_SELLER_INDUSTRY'

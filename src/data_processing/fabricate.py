@@ -123,7 +123,7 @@ def fabricate_features(merged_df, rng_seed=42):
     print("Generating categorical and binary features...")
     all_other_features = categorical_features + binary_features
     for feature in all_other_features:
-        col_name = feature['name']
+        col_name = feature['short_name']
         categories, stats = feature['params']
         synthetic_df[col_name] = create_categorical_distribution(categories, stats, n_samples)
 
