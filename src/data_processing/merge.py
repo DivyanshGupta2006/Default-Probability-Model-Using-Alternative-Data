@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 import yaml
 from pathlib import Path
+from src.utils import read_file
 
 from src.data_processing import preprocess
 from src.utils import read_file
@@ -45,6 +46,12 @@ def merge_data():
     # 5. Reset Index to make SK_ID_CURR a column again
     agg_df = agg_df.reset_index()
 
+    # add back the target column
+    app_train_df = read_file.read_raw_data("application_train.csv")
+    target_df = app_train_df[['SK_ID_CURR', 'TARGET']]
+
+    agg_df_with_target = pd.merge(agg_df, target_df, on='SK_ID_CURR', how='left')
+
     data_dir = config['paths']['processed_data_directory']
 
     if not os.path.exists(data_dir):
@@ -53,6 +60,6 @@ def merge_data():
     else:
         print(f"Directory already exists: {data_dir}")
 
-    agg_df.to_csv(f'{config['paths']['processed_data_directory']}/merged_data_pre_existing.csv', index=False)
+    agg_df_with_target.to_csv(f'{config['paths']['processed_data_directory']}/merged_data_pre_existing.csv', index=False)
 
-    return agg_df
+    return agg_df_with_target

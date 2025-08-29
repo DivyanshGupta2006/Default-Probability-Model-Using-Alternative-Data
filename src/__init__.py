@@ -6,7 +6,7 @@ including data processing, model training, prediction, and the web interface.
 """
 
 # --- From data_processing package ---
-from .data_processing import preprocess_data, fabricate_features
+from .data_processing import preprocess, fabricate_features
 
 # --- From model package ---
 from .model import train_model, make_prediction
@@ -20,7 +20,7 @@ from .utils import perform_eda, read_raw_data
 # --- Define the public API for the 'src' package ---
 __all__ = [
     # data_processing
-    "preprocess_data",
+    "preprocess",
     "fabricate_features",
 
     # # model
@@ -42,7 +42,7 @@ including data processing, model training, prediction, and the web interface.
 """
 
 # --- From data_processing package ---
-from .data_processing import preprocess_data, fabricate_features
+from .data_processing import preprocess, fabricate_features
 
 # --- From model package ---
 from .model import train_model, make_prediction
