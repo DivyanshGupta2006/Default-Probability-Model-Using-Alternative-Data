@@ -1,8 +1,10 @@
-faker
 numpy
 pandas
+scipy
+pyyaml
+scikit-learn
 matplotlib
 seaborn
-scipy
-scikit-learn
-pyyaml
+lightgbm
+xgboost
+catboost

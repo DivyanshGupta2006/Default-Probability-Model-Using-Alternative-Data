@@ -2,6 +2,7 @@ import yaml
 from pathlib import Path
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 current_file_path = Path(__file__)
 root_dir = current_file_path.parent.parent.parent
@@ -60,12 +61,30 @@ def clean(df):
     categorical_cols = config['data']['categorical_final']
     numerical_cols = config['data']['numerical_final']
 
+    target_col = config['data']['target']
+
     df_imputed_cat = impute_missing_category(df, categorical_cols)
     df_imputed_final = median_impute(df_imputed_cat, numerical_cols)
 
-    df_final = one_hot_encode(df_imputed_final, categorical_cols)
+    df_encoded = one_hot_encode(df_imputed_final, categorical_cols)
 
-    output_path = config['paths']['processed_data_directory'] + "/final_data.csv"
-    df_final.to_csv(output_path, index=False)
+    train_df, temp_df = train_test_split(
+        df_encoded, test_size=0.3, random_state=42, stratify=df_encoded[target_col]
+    )
 
-    return df_imputed_final
+    # Split the temporary set into validation (15%) and test (15%)
+    val_df, test_df = train_test_split(
+        temp_df, test_size=0.5, random_state=42, stratify=temp_df[target_col]
+    )
+
+    output_path = config['paths']['processed_data_directory']
+    print(f"Train set shape: {train_df.shape}")
+    print(f"Validation set shape: {val_df.shape}")
+    print(f"Test set shape: {test_df.shape}")
+
+    output_dir = config['paths']['processed_data_directory']
+    train_df.to_csv(output_dir + "/train_data.csv", index=False)
+    val_df.to_csv(output_dir + "/validation_data.csv", index=False)
+    test_df.to_csv(output_dir + "/test_data.csv", index=False)
+
+    return train_df, val_df, test_df

@@ -20,6 +20,6 @@ fabricated_merged_df = fabricate.fabricate_features(merged_df)
 
 print("Fabrication successful!")
 
-clean_df = preprocess.clean(fabricated_merged_df)
+train_df, val_df, test_df = preprocess.clean(fabricated_merged_df)
 
 print("Cleaning successful!")
