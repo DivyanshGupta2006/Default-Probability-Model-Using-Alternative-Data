@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 current_file_path = Path(__file__)
 root_dir = current_file_path.parent.parent.parent
@@ -57,6 +58,14 @@ def one_hot_encode(df, columns):
     )
     return df_encoded
 
+def scale(df, numerical_cols_to_scale):
+    print("Scaling numerical features...")
+    scaled_df = df.copy()
+    scaler = StandardScaler()
+    scaler.fit(scaled_df[numerical_cols_to_scale])
+    scaled_df[numerical_cols_to_scale] = scaler.transform(scaled_df[numerical_cols_to_scale])
+    return scaled_df
+
 def clean(df):
     categorical_cols = config['data']['categorical_final']
     numerical_cols = config['data']['numerical_final']
@@ -67,6 +76,7 @@ def clean(df):
     df_imputed_final = median_impute(df_imputed_cat, numerical_cols)
 
     df_encoded = one_hot_encode(df_imputed_final, categorical_cols)
+    df_encoded = scale(df_encoded, numerical_cols)
 
     train_df, temp_df = train_test_split(
         df_encoded, test_size=0.3, random_state=42, stratify=df_encoded[target_col]

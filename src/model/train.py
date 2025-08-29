@@ -20,7 +20,7 @@ import yaml
 from pathlib import Path
 import argparse
 from sklearn.metrics import roc_auc_score, average_precision_score
-from model import StackingEnsemble
+# from model import StackingEnsemble
 import lightgbm as lgb
 import xgboost as xgb
 import catboost as cb
