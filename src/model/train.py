@@ -49,7 +49,7 @@ def get_model(model_name):
     return models[model_name]()
 
 
-def train(model_name, model_path):
+def train_model(model_name, model_path):
     """
     Generic training script for a specified model.
     """
@@ -57,8 +57,8 @@ def train(model_name, model_path):
 
     # 1. Load Data
     data_dir = config['paths']['processed_data_directory']
-    train_df = pd.read_csv(data_dir + "/train.csv")
-    val_df = pd.read_csv(data_dir + "/validation.csv")
+    train_df = pd.read_csv(data_dir + "/clean_train_data.csv")
+    val_df = pd.read_csv(data_dir + "/clean_val_data.csv")
 
     # 2. Prepare Data
     id_col = config['data']['id']
@@ -84,12 +84,3 @@ def train(model_name, model_path):
 
     # 6. Save Model (uses the .save() method from our base class)
     model.save(model_path)
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, required=True, help='Name of the model to train.')
-    parser.add_argument('--path', type=str, required=True, help='Path to save the trained model.')
-    args = parser.parse_args()
-
-    train(model_name=args.model, model_path=args.path)

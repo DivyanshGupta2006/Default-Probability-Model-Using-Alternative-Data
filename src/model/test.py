@@ -14,7 +14,7 @@ with open(config_path, 'r') as file:
     config = yaml.safe_load(file)
 
 
-def test(model):
+def test_model(model):
     """
     Evaluates a trained model on the hold-out test set.
     """
