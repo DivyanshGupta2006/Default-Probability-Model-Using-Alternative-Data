@@ -5,28 +5,14 @@ import argparse
 import joblib
 from sklearn.metrics import roc_auc_score, average_precision_score
 
-# --- Config and Path Setup ---
-current_file_path = Path(__file__)
-root_dir = current_file_path.parent.parent.parent
-config_path = root_dir / "config.yaml"
+from src.utils import get_config, read_file
 
-with open(config_path, 'r') as file:
-    config = yaml.safe_load(file)
-
+config = get_config.read_yaml_from_package()
 
 def test_model(model):
-    """
-    Evaluates a trained model on the hold-out test set.
-    """
-    model_path = config['paths']['model_data_directory'] + model + "_model.joblib"
-    print(f"--- Testing Model from: {model_path} ---")
+    model = read_file.read_model_data(model)
 
-    # 1. Load Model
-    model = joblib.load(model_path)
-
-    # 2. Load Test Data
-    data_dir = config['paths']['processed_data_directory']
-    test_df = pd.read_csv(data_dir + "/clean_test_data.csv")
+    test_df = read_file.read_processed_data('clean_test_data.csv')
 
     # 3. Prepare Data
     id_col = config['data']['id']
