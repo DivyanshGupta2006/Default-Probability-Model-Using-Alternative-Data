@@ -24,7 +24,7 @@ with open(config_path, 'r') as file:
     config = yaml.safe_load(file)
 
 
-def get_model(model_name):
+def get_model(model_name, params):
     """Factory function to get a model instance by name."""
     models = {
         'lightgbm': LightGBMModel,
@@ -47,10 +47,10 @@ def get_model(model_name):
         ]
         return StackingEnsemble(base_models=base_models)
 
-    return models[model_name]()
+    return models[model_name](**params)
 
 
-def train_model(model_name, model_path):
+def train_model(model_name, params, model_path):
     """
     Generic training script for a specified model.
     """
@@ -71,7 +71,7 @@ def train_model(model_name, model_path):
     y_val = val_df[target_col]
 
     # 3. Initialize Model using the factory function
-    model = get_model(model_name)
+    model = get_model(model_name, params)
 
     # 4. Train Model (uses the .fit() method from our base class)
     model.fit(X_train, y_train)
