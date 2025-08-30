@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+
+{% block title %}Add New User - Finshield{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Credit Risk Assessment
+        </h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+            Enter applicant information to get an instant credit risk evaluation powered by our AI model.
+        </p>
+    </div>
+
+    <!-- Form Container -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-finshield-blue to-finshield-light p-6">
+            <h2 class="text-xl font-semibold text-white">Applicant Information</h2>
+            <p class="text-blue-100 mt-2">All fields are required for accurate assessment</p>
+        </div>
+
+        <form id="creditForm" class="p-8 space-y-8">
+            <!-- Personal Information Section -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Personal & Regional Information</h3>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="education" class="block text-sm font-medium text-gray-700 mb-2">
+                            Education Level
+                        </label>
+                        <select id="education" name="NAME_EDUCATION_TYPE_mode" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                            <option value="">Select Education Level</option>
+                            <option value="Lower secondary">Lower Secondary</option>
+                            <option value="Secondary / secondary special" selected>Secondary / Secondary Special</option>
+                            <option value="Incomplete higher">Incomplete Higher</option>
+                            <option value="Higher education">Higher Education</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="region_rating" class="block text-sm font-medium text-gray-700 mb-2">
+                            Region Rating (1-3, lower = better)
+                        </label>
+                        <input type="number" id="region_rating" name="REGION_RATING_CLIENT_min" min="1" max="3" value="2" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Behavior Section -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Financial Behavior</h3>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="atm_drawings" class="block text-sm font-medium text-gray-700 mb-2">
+                            Monthly ATM Withdrawals (₹)
+                        </label>
+                        <input type="number" id="atm_drawings" name="AMT_DRAWINGS_ATM_CURRENT_mean" min="0" step="100" value="5000" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="current_drawings" class="block text-sm font-medium text-gray-700 mb-2">
+                            Monthly Current Account Drawings (₹)
+                        </label>
+                        <input type="number" id="current_drawings" name="AMT_DRAWINGS_CURRENT_mean" min="0" step="100" value="7500" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pos_drawings" class="block text-sm font-medium text-gray-700 mb-2">
+                            Monthly POS Transactions (₹)
+                        </label>
+                        <input type="number" id="pos_drawings" name="AMT_DRAWINGS_POS_CURRENT_mean" min="0" step="100" value="2500" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="current_count" class="block text-sm font-medium text-gray-700 mb-2">
+                            Monthly Transaction Count
+                        </label>
+                        <input type="number" id="current_count" name="CNT_DRAWINGS_CURRENT_mean" min="0" step="1" value="10" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business & Commerce Section -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Business & Commerce Activity</h3>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="seller_area" class="block text-sm font-medium text-gray-700 mb-2">
+                            Business/Seller Area (sq ft)
+                        </label>
+                        <input type="number" id="seller_area" name="SELLERPLACE_AREA_mean" min="0" step="10" value="500" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="seller_industry" class="block text-sm font-medium text-gray-700 mb-2">
+                            Industry Type
+                        </label>
+                        <select id="seller_industry" name="NAME_SELLER_INDUSTRY_mode" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                            <option value="">Select Industry</option>
+                            <option value="XNA" selected>Not Available</option>
+                            <option value="Consumer electronics">Consumer Electronics</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Auto technology">Auto Technology</option>
+                            <option value="Clothing">Clothing</option>
+                            <option value="Construction">Construction</option>
+                            <option value="Food">Food & Beverages</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alternative Data Section -->
+            <div class="space-y-6">
+                <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Alternative Data Points</h3>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="recharge_freq" class="block text-sm font-medium text-gray-700 mb-2">
+                            Mobile Recharge Frequency (per month)
+                        </label>
+                        <input type="number" id="recharge_freq" name="RCHRG_FRQ" min="0" step="0.1" value="2.0" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="trading_accounts" class="block text-sm font-medium text-gray-700 mb-2">
+                            Trading/Investment Accounts
+                        </label>
+                        <input type="number" id="trading_accounts" name="TRD_ACC" min="0" step="1" value="1" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="smart_cards" class="block text-sm font-medium text-gray-700 mb-2">
+                            Number of Smart Cards
+                        </label>
+                        <input type="number" id="smart_cards" name="NO_OF_SMRT_CARD" min="0" step="1" value="2" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="account_types" class="block text-sm font-medium text-gray-700 mb-2">
+                            Number of Account Types
+                        </label>
+                        <input type="number" id="account_types" name="NO_TYPE_OF_ACC" min="0" step="1" value="3" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="doc_expiry" class="block text-sm font-medium text-gray-700 mb-2">
+                            Document Expiries (per year)
+                        </label>
+                        <input type="number" id="doc_expiry" name="OFC_DOC_EXP" min="0" step="1" value="5" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gst_defaults" class="block text-sm font-medium text-gray-700 mb-2">
+                            GST Filing Defaults (per quarter)
+                        </label>
+                        <input type="number" id="gst_defaults" name="GST_FIL_DEF" min="0" step="1" value="0" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="utility_bills" class="block text-sm font-medium text-gray-700 mb-2">
+                            Monthly Utility Bills (₹)
+                        </label>
+                        <input type="number" id="utility_bills" name="UTILITY_BIL" min="0" step="100" value="9500" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="truecaller_flag" class="block text-sm font-medium text-gray-700 mb-2">
+                            Truecaller Verification Status
+                        </label>
+                        <select id="truecaller_flag" name="TRUECALR_FLAG" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
+                            <option value="">Select Status</option>
+                            <option value="Blue" selected>Blue (Verified)</option>
+                            <option value="Red">Red (Flagged)</option>
+                            <option value="Golden">Golden (Premium)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-center pt-8">
+                <button type="submit" id="submitBtn"
+                        class="bg-gradient-to-r from-finshield-blue to-finshield-light text-white px-12 py-4 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    Assess Credit Risk
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="resultsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+            <div class="p-8 text-center">
+                <div id="riskIndicator" class="w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center">
+                    <span id="riskPercentage" class="text-2xl font-bold text-white"></span>
+                </div>
+
+                <h3 id="riskTitle" class="text-2xl font-bold mb-4"></h3>
+                <p id="riskDescription" class="text-gray-600 mb-6"></p>
+
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700">Risk Score:</span>
+                        <span id="riskScore" class="text-lg font-bold"></span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button onclick="closeModal()" class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        Close
+                    </button>
+                    <button onclick="printResults()" class="flex-1 px-6 py-3 bg-finshield-blue text-white rounded-lg hover:bg-finshield-dark transition-colors">
+                        Save Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('creditForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = {};
+
+    // Convert form data to object
+    for (let [key, value] of formData.entries()) {
+        // Convert numeric fields
+        if (['REGION_RATING_CLIENT_min', 'AMT_DRAWINGS_ATM_CURRENT_mean', 'AMT_DRAWINGS_CURRENT_mean',
+             'AMT_DRAWINGS_POS_CURRENT_mean', 'CNT_DRAWINGS_CURRENT_mean', 'SELLERPLACE_AREA_mean',
+             'RCHRG_FRQ', 'TRD_ACC', 'NO_OF_SMRT_CARD', 'NO_TYPE_OF_ACC', 'OFC_DOC_EXP',
+             'GST_FIL_DEF', 'UTILITY_BIL'].includes(key)) {
+            data[key] = parseFloat(value);
+        } else {
+            data[key] = value;
+        }
+    }
+
+    try {
+        const response = await fetch('/predict/new_applicant', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const result = await response.json();
+        showResults(result.probability_of_default);
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while processing your request. Please try again.');
+    } finally {
+        // Reset button
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Assess Credit Risk';
+    }
+});
+
+function showResults(probability) {
+    const modal = document.getElementById('resultsModal');
+    const indicator = document.getElementById('riskIndicator');
+    const percentage = document.getElementById('riskPercentage');
+    const title = document.getElementById('riskTitle');
+    const description = document.getElementById('riskDescription');
+    const score = document.getElementById('riskScore');
+
+    const riskPercent = Math.round(probability * 100);
+    percentage.textContent = riskPercent + '%';
+    score.textContent = riskPercent + '%';
+
+    // Set colors and messages based on risk level
+    if (probability < 0.3) {
+        indicator.className = 'w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center bg-gradient-to-r from-green-500 to-emerald-500';
+        title.textContent = 'Low Risk';
+        title.className = 'text-2xl font-bold mb-4 text-green-600';
+        description.textContent = 'This applicant shows low probability of default. Recommended for credit approval.';
+    } else if (probability < 0.7) {
+        indicator.className = 'w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center bg-gradient-to-r from-yellow-500 to-orange-500';
+        title.textContent = 'Medium Risk';
+        title.className = 'text-2xl font-bold mb-4 text-orange-600';
+        description.textContent = 'This applicant shows moderate default risk. Consider additional verification or adjusted terms.';
+    } else {
+        indicator.className = 'w-24 h-24 rounded-full mx-auto mb-6 flex items-center justify-center bg-gradient-to-r from-red-500 to-pink-500';
+        title.textContent = 'High Risk';
+        title.className = 'text-2xl font-bold mb-4 text-red-600';
+        description.textContent = 'This applicant shows high probability of default. Credit approval not recommended.';
+    }
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeModal() {
+    const modal = document.getElementById('resultsModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+function printResults() {
+    window.print();
+}
+
+// Form validation and UX improvements
+document.addEventListener('DOMContentLoaded', function() {
+    // Add real-time validation
+    const inputs = document.querySelectorAll('input[required], select[required]');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.classList.add('border-red-500');
+                this.classList.remove('border-gray-300');
+            } else {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-gray-300');
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.form-group label {
+    position: relative;
+}
+
+.form-group label::after {
+    content: '*';
+    color: #ef4444;
+    margin-left: 4px;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #resultsModal * {
+        visibility: visible;
+    }
+
+    #resultsModal {
+        position: static !important;
+        background: white !important;
+    }
+}
+</style>
+{% endblock %}

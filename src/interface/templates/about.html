@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}About Finshield - AI-Powered Credit Risk Assessment{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Hero Section -->
+    <div class="text-center mb-16">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            About <span class="bg-gradient-to-r from-finshield-blue to-finshield-light bg-clip-text text-transparent">Finshield</span>
+        </h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Revolutionizing credit risk assessment through alternative data and explainable AI, making financial services accessible to the underbanked population.
+        </p>
+    </div>
+
+    <!-- Problem Statement -->
+    <section class="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-8 mb-12 border border-red-100">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <svg class="w-8 h-8 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                The Problem We're Solving
+            </h2>
+            <div class="text-lg text-gray-700 space-y-4">
+                <p>
+                    Traditional credit scoring systems exclude <strong>2.5 billion people</strong> worldwide from accessing formal financial services. These underbanked populations lack extensive credit histories, making it impossible for conventional models to assess their creditworthiness accurately.
+                </p>
+                <p>
+                    Without access to credit, individuals cannot start businesses, buy homes, or invest in education, perpetuating cycles of financial exclusion and limiting economic growth in emerging markets.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Overview -->
+    <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Our Innovative Solution</h2>
+
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-6">
+                <h3 class="text-2xl font-semibold text-finshield-blue">Alternative Data Integration</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Finshield leverages non-traditional data sources including utility payments, mobile phone usage patterns, e-commerce behavior, and digital footprints to build comprehensive credit profiles where traditional data doesn't exist.
+                </p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-finshield-blue">25+</div>
+                        <div class="text-sm text-gray-600">Data Sources</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600">87%</div>
+                        <div class="text-sm text-gray-600">Accuracy Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-500 to-purple-600 p-8 rounded-2xl text-white">
+                <h4 class="text-xl font-semibold mb-4">Key Features</h4>
+                <ul class="space-y-3">
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 mr-3 text-green-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Real-time risk assessment
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 mr-3 text-green-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        SHAP-powered explainability
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 mr-3 text-green-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Regulatory compliance
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-5 h-5 mr-3 text-green-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Ensemble ML models
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technical Architecture -->
+    <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Technical Architecture</h2>
+
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Data Pipeline -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Data Pipeline</h3>
+                    <p class="text-gray-600">
+                        Automated data collection, cleaning, and feature engineering with synthetic data generation for enhanced training.
+                    </p>
+                </div>
+
+                <!-- ML Models -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">ML Ensemble</h3>
+                    <p class="text-gray-600">
+                        Stacked ensemble combining LightGBM, XGBoost, CatBoost, and Logistic Regression for optimal performance.
+                    </p>
+                </div>
+
+                <!-- API & Interface -->
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">API & Web Interface</h3>
+                    <p class="text-gray-600">
+                        FastAPI-powered RESTful services with intuitive web interface for seamless integration and user experience.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Model Explainability -->
+    <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Model Explainability with SHAP</h2>
+
+        <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 border border-indigo-100">
+            <div class="text-center mb-8">
+                <p class="text-lg text-gray-700 max-w-3xl mx-auto">
+                    Every credit decision made by Finshield is transparent and explainable through SHAP (SHapley Additive exPlanations) values, ensuring fairness and regulatory compliance.
+                </p>
+            </div>
+
+            <!-- SHAP Visualization Placeholder -->
+            <div class="bg-white rounded-xl p-6 shadow-lg">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4 text-center">Sample SHAP Feature Importance</h3>
+                <div class="relative h-96 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
+                    <div class="text-center">
+                        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <p class="text-gray-600">SHAP visualization will be displayed here</p>
+                        <p class="text-sm text-gray-500 mt-2">Interactive plots showing feature contributions to model predictions</p>
+                    </div>
+                </div>
+
+                <!-- Feature Importance List -->
+                <div class="mt-8 grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-4">Top Positive Indicators</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <span class="text-sm font-medium">Regular Utility Payments</span>
+                                <span class="text-green-600 font-semibold">+0.15</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <span class="text-sm font-medium">Multiple Account Types</span>
+                                <span class="text-green-600 font-semibold">+0.12</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <span class="text-sm font-medium">Stable Mobile Usage</span>
+                                <span class="text-green-600 font-semibold">+0.08</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-4">Top Risk Indicators</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                <span class="text-sm font-medium">GST Filing Defaults</span>
+                                <span class="text-red-600 font-semibold">-0.18</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                <span class="text-sm font-medium">High Region Risk Rating</span>
+                                <span class="text-red-600 font-semibold">-0.14</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                <span class="text-sm font-medium">Document Expiry Issues</span>
+                                <span class="text-red-600 font-semibold">-0.10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Privacy & Compliance -->
+    <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Data Privacy & Compliance</h2>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                    Privacy Protection
+                </h3>
+                <ul class="space-y-3 text-gray-600">
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        End-to-end data encryption
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Anonymized data processing
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        GDPR & local compliance
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
