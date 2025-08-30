@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import yaml
 from pathlib import Path
+import joblib
 
 current_file_path = Path(__file__)
 root_dir = current_file_path.parent.parent.parent
@@ -36,3 +37,16 @@ def read_processed_data(filename):
     df = pd.read_csv(file_path)
     print("Successfully read file!")
     return df
+
+def read_model_data(filename):
+    print(f"Reading file: {filename}")
+
+    file_path = os.path.join(config['paths']['model_data_directory'], filename)
+
+    if not os.path.exists(file_path):
+        print(f"Error: File not found at path: {file_path}")
+        return None
+
+    data = joblib.load(file_path)
+    print("Successfully read file!")
+    return data
