@@ -1,36 +1,28 @@
-import joblib
-import pandas as pd
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
+# In: src/interface/app.py
+
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
-import shap
-import numpy as np
 
-# Import your project's functions
-from src.data_processing.preprocess import apply_pipeline
-from src.utils import get_config
+# Make sure all your new routers are imported
+from src.interface.routers import prediction_router, tracking_router, about_router
 
-# --- App Initialization ---
-app = FastAPI()
-config = get_config.read_yaml_from_package()
+app = FastAPI(
+    title="Finshield Credit Risk API",
+    description="API for predicting and explaining credit default risk."
+)
 
-# --- Load Pre-trained Objects ---
-# Load the preprocessing pipeline
-preprocessor_path = config['paths']['model_data_directory'] + "preprocessor.joblib"
-fitted_objects = joblib.load(preprocessor_path)
-
-# Load the trained model (let's assume you're using the ensemble)
-model_path = config['paths']['model_data_directory'] + "ensemble_model.joblib"
-model = joblib.load(model_path)
-
-# Load SHAP explainer (for individual predictions)
-# Note: You might need to adjust this depending on the model type
-actual_model = model.meta_learner # Assuming meta-learner is what you want to explain
-explainer = shap.KernelExplainer(actual_model.predict_proba, np.zeros((1, len(model.base_models))))
-
-
-# --- Template and Static File Configuration ---
+# Mount static files and templates
 app.mount("/static", StaticFiles(directory="src/interface/static"), name="static")
 templates = Jinja2Templates(directory="src/interface/templates")
+
+# === THIS IS THE KEY PART ===
+# Ensure the router with your new endpoint is included.
+app.include_router(prediction_router.router)
+app.include_router(tracking_router.router)
+app.include_router(about_router.router)
+# ============================
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the Finshield API. Go to /docs for documentation."}
