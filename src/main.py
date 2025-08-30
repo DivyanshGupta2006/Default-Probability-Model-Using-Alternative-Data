@@ -1,25 +1,30 @@
-import yaml
-from pathlib import Path
+from src.data_processing import download_data, merge, fabricate, preprocess, split
+from src.utils import get_config, read_file
 
-from src.data_processing import download_data, merge, fabricate, preprocess
+config = get_config.read_yaml_from_main()
 
-current_file_path = Path(__file__)
-root_dir = current_file_path.parent.parent
-config_path = root_dir / "config.yaml"
+print("Successfully read metadata!")
 
-with open(config_path, 'r') as file:
-    config = yaml.safe_load(file)
+# download_data.download_and_unzip_kaggle_dataset()
+#
+# print("Data downloading successful!")
+#
+# merged_df = merge.merge_data()
+#
+# print("Data merging successful!")
 
-download_data.download_and_unzip_kaggle_dataset()
-
-merged_df = merge.merge_data()
-
-print("Data merging successful!")
+merged_df = read_file.read_processed_data('merged_data_pre_existing.csv')
 
 fabricated_merged_df = fabricate.fabricate_features(merged_df)
 
 print("Fabrication successful!")
 
-train_df, val_df, test_df = preprocess.clean(fabricated_merged_df)
+train_df, val_df, test_df = split.split_data(fabricated_merged_df)
+
+print("Splitting successful!")
+
+train_df = preprocess.clean(train_df, name="clean_train_data.csv")
+val_df = preprocess.clean(val_df, name="clean_val_data.csv", use_saved=True)
+test_df = preprocess.clean(test_df, name="clean_test_data.csv", use_saved=True)
 
 print("Cleaning successful!")

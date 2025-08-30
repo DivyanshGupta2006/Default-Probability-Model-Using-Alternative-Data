@@ -16,7 +16,7 @@ with open(config_path, 'r') as file:
     config = yaml.safe_load(file)
 
 def merge_data():
-    print("Reading raw data...")
+    print("Starting data merge...")
 
     merged_df = pd.DataFrame()
 

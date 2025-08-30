@@ -1,15 +1,10 @@
 import numpy as np
 import pandas as pd
 from scipy.linalg import block_diag
-import yaml
-from pathlib import Path
 
-current_file_path = Path(__file__)
-root_dir = current_file_path.parent.parent.parent
-config_path = root_dir / "config.yaml"
+from src.utils import get_config
 
-with open(config_path, 'r') as file:
-    config = yaml.safe_load(file)
+config = get_config.read_yaml_from_package()
 
 # --- Helper for categorical distributions ---
 def create_categorical_distribution(categories, stats, n, nan_probability=0):

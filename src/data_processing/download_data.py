@@ -2,22 +2,17 @@ import os
 import subprocess
 import zipfile
 import sys
-import yaml
-from pathlib import Path
 
-current_file_path = Path(__file__)
-root_dir = current_file_path.parent.parent.parent
-config_path = root_dir / "config.yaml"
+from src.utils import get_config
 
-with open(config_path, 'r') as file:
-    config = yaml.safe_load(file)
+config = get_config.read_yaml_from_package()
 
 data_dir = config['paths']['raw_data_directory']
 
 competition_name = "home-credit-default-risk"
 
 def download_and_unzip_kaggle_dataset():
-    print(f"--- Starting Kaggle Dataset Download for '{competition_name}' ---")
+
     if not os.path.exists(data_dir):
         print(f"Creating directory: {data_dir}")
         os.makedirs(data_dir)
@@ -26,7 +21,6 @@ def download_and_unzip_kaggle_dataset():
 
     if os.listdir(data_dir):
         print("Data directory is not empty. Assuming dataset is already present.")
-        print("--- Process Complete ---")
         return
     zip_file_path = os.path.join(data_dir, f"{competition_name}.zip")
     command = [
@@ -71,5 +65,3 @@ def download_and_unzip_kaggle_dataset():
 
     print(f"Removing zip file: {zip_file_path}")
     os.remove(zip_file_path)
-
-    print("Download successful!")
