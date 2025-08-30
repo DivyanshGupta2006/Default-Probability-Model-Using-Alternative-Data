@@ -47,10 +47,13 @@ def get_model(model_name, params):
         ]
         return StackingEnsemble(base_models=base_models)
 
-    return models[model_name](**params)
+    if params is None:
+        return models[model_name]()
+    else:
+        return models[model_name](**params)
 
 
-def train_model(model_name, params, model_path):
+def train_model(model_name, model_path, params=None):
     """
     Generic training script for a specified model.
     """
