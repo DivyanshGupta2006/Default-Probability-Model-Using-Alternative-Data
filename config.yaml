@@ -184,3 +184,5 @@ files:
     - 'installments_payments.csv'
     - 'POS_CASH_balance.csv'
     - 'sample_submission.csv'
+
+model: 'lightgbm_model.joblib'
