@@ -1,19 +1,10 @@
 import os
 import pandas as pd
-from pathlib import Path
-import yaml
-from pathlib import Path
-from src.utils import read_file
 
+from src.utils import read_file, get_config
 from src.data_processing import preprocess
-from src.utils import read_file
 
-current_file_path = Path(__file__)
-root_dir = current_file_path.parent.parent.parent
-config_path = root_dir / "config.yaml"
-
-with open(config_path, 'r') as file:
-    config = yaml.safe_load(file)
+config = get_config.read_yaml_from_package()
 
 def merge_data():
     print("Starting data merge...")

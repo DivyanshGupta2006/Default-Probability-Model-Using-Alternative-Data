@@ -1,8 +1,4 @@
-# src/model/train.py
-
 import pandas as pd
-import yaml
-from pathlib import Path
 from sklearn.metrics import roc_auc_score, average_precision_score
 
 # Import your new model classes
@@ -13,16 +9,9 @@ from src.model.model import (
     LogisticRegressionModel,
     StackingEnsemble
 )
+from src.utils import get_config, read_file
 
-# --- Config and Path Setup ---
-# (Your existing config loading code remains here)
-current_file_path = Path(__file__)
-root_dir = current_file_path.parent.parent.parent
-config_path = root_dir / "config.yaml"
-
-with open(config_path, 'r') as file:
-    config = yaml.safe_load(file)
-
+config = get_config.read_yaml_from_package()
 
 def get_model(model_name, params):
     """Factory function to get a model instance by name."""
@@ -54,15 +43,10 @@ def get_model(model_name, params):
 
 
 def train_model(model_name, model_path, params=None):
-    """
-    Generic training script for a specified model.
-    """
     print(f"--- Preparing to Train Model: {model_name} ---")
 
-    # 1. Load Data
-    data_dir = config['paths']['processed_data_directory']
-    train_df = pd.read_csv(data_dir + "/clean_train_data.csv")
-    val_df = pd.read_csv(data_dir + "/clean_val_data.csv")
+    train_df = read_file.read_processed_data('clean_train_data.csv')
+    val_df = read_file.read_processed_data('clean_val_data.csv')
 
     # 2. Prepare Data
     id_col = config['data']['id']
