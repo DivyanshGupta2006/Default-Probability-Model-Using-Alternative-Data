@@ -8,4 +8,5 @@ seaborn
 lightgbm
 xgboost
 catboost
-imbalanced-learn
+optuna
+shap

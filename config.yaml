@@ -173,6 +173,8 @@ data:
     - 'NAME_EDUCATION_TYPE'
     - 'NAME_SELLER_INDUSTRY'
 
+  zero_to_one_ratio: 11.3874
+
 files:
   junk_files:
     - 'HomeCredit_columns_description.csv'

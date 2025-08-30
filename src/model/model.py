@@ -5,6 +5,9 @@ import lightgbm as lgb
 import xgboost as xgb
 import catboost as cb
 
+from src.utils import get_config
+
+config = get_config.read_yaml_from_package()
 
 class Model:
     """
@@ -36,21 +39,23 @@ class Model:
 class LightGBMModel(Model):
     def __init__(self, params=None):
         if params is None:
-            params = {'random_state': 42}
+            params = {'random_state': 42, 'class_weight': 'balanced'}
         super().__init__(lgb.LGBMClassifier(**params))
 
 
 class XGBoostModel(Model):
     def __init__(self, params=None):
         if params is None:
-            params = {'random_state': 42, 'use_label_encoder': False, 'eval_metric': 'logloss'}
+            ratio = config['data']['zero_to_one_ratio']
+            params = {'random_state': 42, 'eval_metric': 'logloss', 'scale_pos_weight': ratio}
+            super().__init__(xgb.XGBClassifier(**params))
         super().__init__(xgb.XGBClassifier(**params))
 
 
 class CatBoostModel(Model):
     def __init__(self, params=None):
         if params is None:
-            params = {'random_state': 42, 'verbose': 0}
+            params = {'random_state': 42, 'verbose': 0, 'auto_class_weights': 'Balanced'}
         super().__init__(cb.CatBoostClassifier(**params))
 
 

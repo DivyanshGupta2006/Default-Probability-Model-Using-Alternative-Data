@@ -3,7 +3,6 @@
 import pandas as pd
 import yaml
 from pathlib import Path
-import argparse
 from sklearn.metrics import roc_auc_score, average_precision_score
 
 # Import your new model classes
@@ -42,7 +41,9 @@ def get_model(model_name):
         # Define the base models for the ensemble here
         base_models = [
             LightGBMModel(),
-            XGBoostModel()
+            XGBoostModel(),
+            CatBoostModel(),
+            LogisticRegressionModel()
         ]
         return StackingEnsemble(base_models=base_models)
 
