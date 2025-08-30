@@ -1,32 +1,22 @@
-import numpy as np
-import pandas as pd
-import yaml
-from pathlib import Path
-
-
-current_file_path = Path(__file__)
-root_dir = current_file_path.parent.parent.parent
-config_path = root_dir / "config.yaml"
-
-with open(config_path, 'r') as file:
-    config = yaml.safe_load(file)
-
-def train_model():
-    return 0
-
+# src/model/train.py
 
 import pandas as pd
 import yaml
 from pathlib import Path
 import argparse
 from sklearn.metrics import roc_auc_score, average_precision_score
-# from model import StackingEnsemble
-import lightgbm as lgb
-import xgboost as xgb
-import catboost as cb
-from sklearn.linear_model import LogisticRegression
+
+# Import your new model classes
+from src.model.model import (
+    LightGBMModel,
+    XGBoostModel,
+    CatBoostModel,
+    LogisticRegressionModel,
+    StackingEnsemble
+)
 
 # --- Config and Path Setup ---
+# (Your existing config loading code remains here)
 current_file_path = Path(__file__)
 root_dir = current_file_path.parent.parent.parent
 config_path = root_dir / "config.yaml"
@@ -35,11 +25,35 @@ with open(config_path, 'r') as file:
     config = yaml.safe_load(file)
 
 
+def get_model(model_name):
+    """Factory function to get a model instance by name."""
+    models = {
+        'lightgbm': LightGBMModel,
+        'xgboost': XGBoostModel,
+        'catboost': CatBoostModel,
+        'logistic_regression': LogisticRegressionModel,
+        'ensemble': StackingEnsemble
+    }
+
+    if model_name not in models:
+        raise ValueError(f"Model '{model_name}' not recognized. Available models: {list(models.keys())}")
+
+    if model_name == 'ensemble':
+        # Define the base models for the ensemble here
+        base_models = [
+            LightGBMModel(),
+            XGBoostModel()
+        ]
+        return StackingEnsemble(base_models=base_models)
+
+    return models[model_name]()
+
+
 def train(model_name, model_path):
     """
     Generic training script for a specified model.
     """
-    print(f"--- Training Model: {model_name} ---")
+    print(f"--- Preparing to Train Model: {model_name} ---")
 
     # 1. Load Data
     data_dir = config['paths']['processed_data_directory']
@@ -55,26 +69,10 @@ def train(model_name, model_path):
     X_val = val_df.drop(columns=[id_col, target_col])
     y_val = val_df[target_col]
 
-    # 3. Initialize Model
-    models = {
-        'lightgbm': lgb.LGBMClassifier(random_state=42),
-        'xgboost': xgb.XGBClassifier(random_state=42, use_label_encoder=False, eval_metric='logloss'),
-        'catboost': cb.CatBoostClassifier(random_state=42, verbose=0),
-        'logistic_regression': LogisticRegression(random_state=42),
-        'ensemble': StackingEnsemble(
-            base_models=[
-                lgb.LGBMClassifier(random_state=42),
-                xgb.XGBClassifier(random_state=42, use_label_encoder=False, eval_metric='logloss')
-            ]
-        )
-    }
+    # 3. Initialize Model using the factory function
+    model = get_model(model_name)
 
-    if model_name not in models:
-        raise ValueError(f"Model '{model_name}' not recognized. Available models: {list(models.keys())}")
-
-    model = models[model_name]
-
-    # 4. Train Model
+    # 4. Train Model (uses the .fit() method from our base class)
     model.fit(X_train, y_train)
 
     # 5. Evaluate
@@ -82,11 +80,10 @@ def train(model_name, model_path):
     auc = roc_auc_score(y_val, val_preds)
     pr_auc = average_precision_score(y_val, val_preds)
     print(f"Validation ROC AUC: {auc:.4f}")
-    print(f"Validation PR AUC: {pr_auc:.4f}")
+    print(f"Validation PR AUC (AUC-PR): {pr_auc:.4f}")
 
-    # 6. Save Model
-    model.save(model_path) if hasattr(model, 'save') else joblib.dump(model, model_path)
-    print(f"Model saved to {model_path}")
+    # 6. Save Model (uses the .save() method from our base class)
+    model.save(model_path)
 
 
 if __name__ == '__main__':

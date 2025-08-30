@@ -1,74 +1,117 @@
 import joblib
 import numpy as np
-import pandas as pd
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold
 import lightgbm as lgb
 import xgboost as xgb
 import catboost as cb
-import yaml
-from pathlib import Path
 
-current_file_path = Path(__file__)
-root_dir = current_file_path.parent.parent.parent
-config_path = root_dir / "config.yaml"
-
-with open(config_path, 'r') as file:
-    config = yaml.safe_load(file)
 
 class Model:
-    pass
-
-
-class StackingEnsemble:
     """
-    A stacking ensemble model that uses a meta-learner (Logistic Regression)
-    to combine predictions from a list of base models.
+    Abstract base class for all models.
+    Defines the standard interface for training, prediction, and saving.
     """
 
-    def __init__(self, base_models, meta_learner=LogisticRegression(random_state=42)):
+    def __init__(self, model):
+        self.model = model
+
+    def fit(self, X, y):
+        """Fits the model to the training data."""
+        print(f"--- Fitting {self.__class__.__name__} ---")
+        self.model.fit(X, y)
+        return self
+
+    def predict_proba(self, X):
+        """Generates probability predictions."""
+        return self.model.predict_proba(X)
+
+    def save(self, path):
+        """Saves the trained model to a file."""
+        joblib.dump(self.model, path)
+        print(f"Model saved to {path}")
+
+
+# --- Individual Model Wrappers ---
+
+class LightGBMModel(Model):
+    def __init__(self, params=None):
+        if params is None:
+            params = {'random_state': 42}
+        super().__init__(lgb.LGBMClassifier(**params))
+
+
+class XGBoostModel(Model):
+    def __init__(self, params=None):
+        if params is None:
+            params = {'random_state': 42, 'use_label_encoder': False, 'eval_metric': 'logloss'}
+        super().__init__(xgb.XGBClassifier(**params))
+
+
+class CatBoostModel(Model):
+    def __init__(self, params=None):
+        if params is None:
+            params = {'random_state': 42, 'verbose': 0}
+        super().__init__(cb.CatBoostClassifier(**params))
+
+
+class LogisticRegressionModel(Model):
+    def __init__(self, params=None):
+        if params is None:
+            params = {'random_state': 42}
+        super().__init__(LogisticRegression(**params))
+
+
+# --- Ensemble Model ---
+
+class StackingEnsemble(Model):
+    """
+    A stacking ensemble model that uses a meta-learner to combine predictions
+    from a list of base models.
+    """
+
+    def __init__(self, base_models, meta_learner=None):
+        if meta_learner is None:
+            meta_learner = LogisticRegressionModel().model  # Use the underlying sklearn model
+
         self.base_models = base_models
         self.meta_learner = meta_learner
-        self.base_models_trained = []
+        super().__init__(self)  # The model is the ensemble class itself
 
     def fit(self, X, y):
         print("--- Fitting Stacking Ensemble ---")
-
-        # 1. Train base models on the full training data and store them
-        for model in self.base_models:
-            print(f"Fitting base model: {model.__class__.__name__}")
-            model.fit(X, y)
-            self.base_models_trained.append(model)
-
-        # 2. Generate predictions from base models to be used as features for the meta-learner
-        meta_features = self._get_meta_features(X)
-
-        # 3. Train the meta-learner on the base model predictions
+        # 1. Train base models and generate meta-features
+        meta_features = self._get_meta_features(X, y, train_mode=True)
+        # 2. Train the meta-learner on the base model predictions
         print("Fitting meta-learner...")
         self.meta_learner.fit(meta_features, y)
         print("--- Ensemble Fitting Complete ---")
         return self
 
-    def _get_meta_features(self, X):
+    def _get_meta_features(self, X, y=None, train_mode=False):
         """Generates predictions from base models."""
         predictions = []
-        for model in self.base_models_trained:
-            # Use predict_proba to get probability estimates
-            preds = model.predict_proba(X)[:, 1]
-            predictions.append(preds)
+
+        if train_mode:
+            # During training, we train the base models
+            for model_wrapper in self.base_models:
+                print(f"Fitting base model: {model_wrapper.__class__.__name__}")
+                model_wrapper.fit(X, y)
+                preds = model_wrapper.predict_proba(X)[:, 1]
+                predictions.append(preds)
+        else:
+            # During prediction, we use the already-trained base models
+            for model_wrapper in self.base_models:
+                preds = model_wrapper.predict_proba(X)[:, 1]
+                predictions.append(preds)
+
         return np.column_stack(predictions)
 
     def predict_proba(self, X):
         """Make probability predictions with the ensemble."""
-        # Generate predictions from base models
-        meta_features = self._get_meta_features(X)
-        # The meta-learner makes the final prediction
+        meta_features = self._get_meta_features(X, train_mode=False)
         return self.meta_learner.predict_proba(meta_features)
 
     def save(self, path):
         """Saves the entire ensemble model."""
-        joblib.dump(self, path)
+        joblib.dump(self, path)  # Save the entire ensemble instance
         print(f"Ensemble model saved to {path}")
-
-# --- You can add individual model classes here if needed for more complex logic ---
-# For now, we will instantiate them directly in the training script for simplicity.

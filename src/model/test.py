@@ -14,10 +14,11 @@ with open(config_path, 'r') as file:
     config = yaml.safe_load(file)
 
 
-def test(model_path):
+def test(model):
     """
     Evaluates a trained model on the hold-out test set.
     """
+    model_path = config['paths']['model_path'] + model
     print(f"--- Testing Model from: {model_path} ---")
 
     # 1. Load Model
@@ -42,11 +43,3 @@ def test(model_path):
     print("\n--- Test Set Performance ---")
     print(f"Test ROC AUC: {auc:.4f}")
     print(f"Test PR AUC: {pr_auc:.4f}")
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--path', type=str, required=True, help='Path to the saved model file.')
-    args = parser.parse_args()
-
-    test(model_path=args.path)
