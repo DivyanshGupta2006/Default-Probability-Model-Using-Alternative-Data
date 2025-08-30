@@ -18,7 +18,7 @@ def test_model(model):
     """
     Evaluates a trained model on the hold-out test set.
     """
-    model_path = config['paths']['model_path'] + model
+    model_path = config['paths']['model_data_directory'] + model
     print(f"--- Testing Model from: {model_path} ---")
 
     # 1. Load Model
