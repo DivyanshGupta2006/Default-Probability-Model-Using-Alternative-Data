@@ -18,7 +18,7 @@ def test_model(model):
     """
     Evaluates a trained model on the hold-out test set.
     """
-    model_path = config['paths']['model_data_directory'] + model
+    model_path = config['paths']['model_data_directory'] + model + "_model.joblib"
     print(f"--- Testing Model from: {model_path} ---")
 
     # 1. Load Model
@@ -26,7 +26,7 @@ def test_model(model):
 
     # 2. Load Test Data
     data_dir = config['paths']['processed_data_directory']
-    test_df = pd.read_csv(data_dir + "/test.csv")
+    test_df = pd.read_csv(data_dir + "/clean_test_data.csv")
 
     # 3. Prepare Data
     id_col = config['data']['id']
