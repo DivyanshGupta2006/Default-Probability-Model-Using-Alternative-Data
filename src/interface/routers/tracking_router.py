@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from src.interface.database import crud, models
 from src.interface.database.connection import get_database
@@ -10,18 +10,36 @@ router = APIRouter(prefix="/track", tags=["Tracking"])
 
 
 @router.get("/portfolio")
-def get_full_portfolio(db: Session = Depends(get_database)):
+def get_full_portfolio(
+        db: Session = Depends(get_database),
+        # --- FIX START: Add optional query parameters for filtering ---
+        search: Optional[str] = Query(None, description="Search by user ID, name, or email"),
+        risk_level: Optional[str] = Query(None, description="Filter by risk category (low, medium, high)"),
+        status: Optional[str] = Query(None, description="Filter by user status (active, inactive)")
+        # --- FIX END ---
+):
     """
-    Returns data for all users in the portfolio from the database.
+    Returns data for all users in the portfolio from the database, with optional filtering.
     """
     try:
-        portfolio_data = crud.PortfolioCRUD.get_portfolio_data(db)
+        # --- FIX START: Pass filters to the CRUD function ---
+        filters = {
+            "search": search,
+            "risk_level": risk_level,
+            "status": status
+        }
+        # Remove None values so we don't pass empty filters
+        active_filters = {k: v for k, v in filters.items() if v}
+
+        portfolio_data = crud.PortfolioCRUD.get_portfolio_data(db, filters=active_filters)
+        # --- FIX END ---
         return {"portfolio": portfolio_data}
     except Exception as e:
-        print(f"Error fetching portfolio: {e}")  # For debugging
+        print(f"Error fetching portfolio: {e}")
         raise HTTPException(status_code=500, detail="Could not fetch portfolio data.")
 
 
+# ... The rest of your tracking_router.py file remains the same ...
 @router.put("/users/{user_id}")
 def update_user_data(user_id: str, updated_data: dict, db: Session = Depends(get_database)):
     """
@@ -56,5 +74,5 @@ def update_user_data(user_id: str, updated_data: dict, db: Session = Depends(get
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        print(f"Error updating user: {e}")  # For debugging
+        print(f"Error updating user: {e}")
         raise HTTPException(status_code=500, detail="An error occurred during user update.")
