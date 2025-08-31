@@ -1,27 +1,28 @@
-# In: src/interface/schemas/credit_application.py
-
 from pydantic import BaseModel
+from typing import Optional  # <-- Import Optional
 
-# This schema defines the structure for a new credit application.
-# Add the most important features you expect from the user input form.
+
 class CreditApplication(BaseModel):
+    # These are in your form, so they remain required
     REGION_RATING_CLIENT_min: int
-    AMT_DRAWINGS_ATM_CURRENT_mean: float
     AMT_DRAWINGS_CURRENT_mean: float
-    AMT_DRAWINGS_POS_CURRENT_mean: float
-    CNT_DRAWINGS_CURRENT_mean: float
-    SELLERPLACE_AREA_mean: int
-    RCHRG_FRQ: float
-    TRD_ACC: float
-    NO_OF_SMRT_CARD: int
-    NO_TYPE_OF_ACC: int
-    OFC_DOC_EXP: int
-    GST_FIL_DEF: int
     UTILITY_BIL: float
     NAME_EDUCATION_TYPE_mode: str = "Secondary / secondary special"
+
+    # --- MAKE THESE FIELDS OPTIONAL ---
+    # These are not in your simple form, so we provide a default of None
+    AMT_DRAWINGS_ATM_CURRENT_mean: Optional[float] = None
+    AMT_DRAWINGS_POS_CURRENT_mean: Optional[float] = None
+    CNT_DRAWINGS_CURRENT_mean: Optional[float] = None
+    SELLERPLACE_AREA_mean: Optional[int] = None
+    RCHRG_FRQ: Optional[float] = None
+    TRD_ACC: Optional[float] = None
+    NO_OF_SMRT_CARD: Optional[int] = None
+    NO_TYPE_OF_ACC: Optional[int] = None
+    OFC_DOC_EXP: Optional[int] = None
+    GST_FIL_DEF: Optional[int] = None
     NAME_SELLER_INDUSTRY_mode: str = "XNA"
     TRUECALR_FLAG: str = "Blue"
-
     # Example of how to add a default value for the model
     class Config:
         schema_extra = {

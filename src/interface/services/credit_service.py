@@ -2,65 +2,139 @@
 
 import joblib
 import pandas as pd
+import shap
 from pathlib import Path
 
 # --- 1. SETUP & CONFIGURATION ---
+try:
+    ROOT_DIR = Path(__file__).parent.parent.parent.parent
+except NameError:
+    ROOT_DIR = Path(".").absolute()
 
-# Define paths to your saved model and preprocessor
-# This assumes your script is run from the root of the project
-MODEL_DIR = Path("models/")
+MODEL_DIR = ROOT_DIR / "models"
 MODEL_PATH = MODEL_DIR / "lightgbm_model.joblib"
 PREPROCESSOR_PATH = MODEL_DIR / "preprocessor.joblib"
+TRAIN_DATA_PATH = ROOT_DIR / "data" / "processed_data" / "clean_train_data.csv"
 
-# --- 2. LOAD ARTIFACTS ---
+# --- 2. LOAD ARTIFACTS AT STARTUP ---
+model = None
+preprocessor = None
+explainer = None
 
-# Load the artifacts at startup to ensure they are ready for predictions
 try:
     model = joblib.load(MODEL_PATH)
     preprocessor = joblib.load(PREPROCESSOR_PATH)
-    print("✅ Model and preprocessor loaded successfully!")
-except FileNotFoundError as e:
-    print(f"❌ Error loading artifacts: {e}. Make sure the model and preprocessor files are in the 'models/' directory.")
-    model = None
-    preprocessor = None
+
+    # Use a small background dataset for the SHAP explainer
+    train_df_sample = pd.read_csv(TRAIN_DATA_PATH).sample(100, random_state=42)
+    id_col = 'SK_ID_CURR'
+    target_col = 'TARGET'
+    background_data = train_df_sample.drop(columns=[id_col, target_col])
+
+    explainer = shap.TreeExplainer(model.model)
+    print("✅ Model, preprocessor, and SHAP explainer loaded successfully!")
+
+except Exception as e:
+    print(f"❌ Error loading artifacts: {e}. Ensure all necessary files exist.")
 
 
-# --- 3. CORE SERVICE FUNCTION ---
+# --- 3. HELPER FUNCTION for PREPROCESSING (FINAL, ROBUST VERSION) ---
 
-def predict_new_applicant(application_data: dict):
-    """
-    Preprocesses input data and returns a default probability.
-    """
-    if not model or not preprocessor:
-        raise RuntimeError("Model or preprocessor not loaded. Cannot make predictions.")
+def _apply_inference_pipeline(data: pd.DataFrame) -> pd.DataFrame:
+    if not preprocessor:
+        raise RuntimeError("Preprocessor is not loaded.")
 
-    # Convert the input dictionary to a pandas DataFrame
-    input_df = pd.DataFrame([application_data])
-
-    # Apply the saved preprocessing pipeline
-    # The apply_pipeline function is defined in your src/data_processing/preprocess.py
-    # We will need to adapt it slightly for inference if it's not already.
-    # For now, let's assume a simplified application of the preprocessor:
-
-    # Separate columns
     numerical_cols = preprocessor['numerical_cols']
     categorical_cols = preprocessor['categorical_cols']
+    encoder = preprocessor['encoder']
+    scaler = preprocessor['scaler']
 
-    # Create a full DataFrame with all expected columns
-    all_cols = numerical_cols + preprocessor['encoder'].get_feature_names_out(categorical_cols).tolist()
+    input_df = data.copy()
 
-    # Preprocess categorical features
-    encoded_features = preprocessor['encoder'].transform(input_df[categorical_cols])
-    encoded_df = pd.DataFrame(encoded_features, columns=preprocessor['encoder'].get_feature_names_out(categorical_cols))
+    # Create a new DataFrame with all the raw columns the preprocessor expects
+    all_raw_cols = numerical_cols + categorical_cols
+    full_raw_df = pd.DataFrame(columns=all_raw_cols)
 
-    # Preprocess numerical features
-    scaled_features = preprocessor['scaler'].transform(input_df[numerical_cols])
+    for col in input_df.columns:
+        if col in full_raw_df.columns:
+            full_raw_df[col] = input_df[col]
+
+    full_raw_df.fillna(0, inplace=True)  # Fill any non-provided columns with 0
+
+    # Apply transformations
+    encoded_features = encoder.transform(full_raw_df[categorical_cols])
+    encoded_df = pd.DataFrame(encoded_features, columns=encoder.get_feature_names_out(categorical_cols))
+
+    scaled_features = scaler.transform(full_raw_df[numerical_cols])
     scaled_df = pd.DataFrame(scaled_features, columns=numerical_cols)
 
-    # Combine into a single DataFrame in the correct order
-    processed_df = pd.concat([scaled_df, encoded_df], axis=1)
+    # Combine into a single processed dataframe
+    processed_input_df = pd.concat([scaled_df, encoded_df], axis=1)
 
-    # Make prediction
-    probability = model.predict_proba(processed_df)[:, 1]
+    # Get the exact list of columns the model was trained on
+    expected_model_columns = model.model.feature_name_
 
-    return float(probability[0])
+    # Create a new, empty DataFrame with the model's exact column structure, filled with zeros
+    final_df = pd.DataFrame(columns=expected_model_columns)
+    final_df = pd.concat([final_df, processed_input_df], ignore_index=True).fillna(0)
+
+    # Ensure the column order is identical
+    final_df = final_df[expected_model_columns]
+
+    return final_df
+
+
+# --- 4. CORE SERVICE FUNCTION ---
+# In: src/interface/services/credit_service.py
+
+def predict_and_explain(application_data: dict):
+    """
+    This is a DEBUGGING version. It will print its progress to the terminal.
+    """
+    try:
+        print("\n--- [DEBUG] Inside predict_and_explain ---")
+        if not all([model, preprocessor, explainer]):
+            raise RuntimeError("ML artifacts are not loaded.")
+
+        print("[DEBUG] Step 1: Creating input DataFrame.")
+        input_df = pd.DataFrame([application_data])
+
+        print("[DEBUG] Step 2: Applying inference pipeline.")
+        processed_df = _apply_inference_pipeline(input_df)
+        print(
+            f"[DEBUG] Step 3: Preprocessing complete. Shape: {processed_df.shape}, Columns: {processed_df.columns.tolist()}")
+
+        print("[DEBUG] Step 4: Making prediction with model.")
+        probability = model.predict_proba(processed_df)[0, 1]
+        print(f"[DEBUG] Step 5: Prediction successful. Probability: {probability}")
+
+        print("[DEBUG] Step 6: Generating SHAP values.")
+        shap_values = explainer.shap_values(processed_df)
+        print("[DEBUG] Step 7: SHAP values generated.")
+
+        if isinstance(explainer.expected_value, list) and len(explainer.expected_value) > 1:
+            base_value = explainer.expected_value[1]
+        else:
+            base_value = explainer.expected_value
+
+        if isinstance(shap_values, list) and len(shap_values) > 1:
+            shap_values_for_class_1 = shap_values[1][0]
+        else:
+            shap_values_for_class_1 = shap_values[0]
+
+        print("[DEBUG] Step 8: Assembling final explanation.")
+        explanation = {
+            "base_value": float(base_value),
+            "prediction_probability": float(probability),
+            "feature_impacts": {
+                feature: float(value) for feature, value in zip(processed_df.columns, shap_values_for_class_1)
+            }
+        }
+
+        print("[DEBUG] Step 9: Returning result.")
+        return explanation
+
+    except Exception as e:
+        print(f"\n🔥🔥🔥 [DEBUG] AN ERROR OCCURRED! 🔥🔥🔥")
+        # Re-raise the exception so FastAPI shows it in the terminal
+        raise e

@@ -1,0 +1,54 @@
+       <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Finshield - New Applicant</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>New Credit Application</h1>
+        <p>Fill in the applicant's details to get a credit risk prediction.</p>
+
+        <form id="credit-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="REGION_RATING_CLIENT_min">Client Region Rating (1-3)</label>
+                    <input type="number" id="REGION_RATING_CLIENT_min" name="REGION_RATING_CLIENT_min" value="2" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="UTILITY_BIL">Avg. Monthly Utility Bill</label>
+                    <input type="number" step="100" id="UTILITY_BIL" name="UTILITY_BIL" value="9500" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="AMT_DRAWINGS_CURRENT_mean">Avg. Current Drawings</label>
+                    <input type="number" step="100" id="AMT_DRAWINGS_CURRENT_mean" name="AMT_DRAWINGS_CURRENT_mean" value="7500" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="NAME_EDUCATION_TYPE_mode">Education Level</label>
+                    <select id="NAME_EDUCATION_TYPE_mode" name="NAME_EDUCATION_TYPE_mode">
+                        <option>Secondary / secondary special</option>
+                        <option>Higher education</option>
+                        <option>Incomplete higher</option>
+                        <option>Lower secondary</option>
+                        <option>Academic degree</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit">Predict Risk</button>
+        </form>
+
+        <hr>
+        <h2>Prediction Result</h2>
+        <div id="result-container">
+            <p>Awaiting submission...</p>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
