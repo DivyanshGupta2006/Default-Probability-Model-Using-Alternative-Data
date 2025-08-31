@@ -35,18 +35,18 @@ def initialize_sample_data():
 
         # Sample users data
         sample_users = [
-            {
-                'user_id': 'USR001_John_Doe',
-                'full_name': 'John Doe',
-                'email': 'john.doe@email.com',
-                'phone': '+91-9876543210'
-            },
-            {
-                'user_id': 'USR002_Jane_Smith',
-                'full_name': 'Jane Smith',
-                'email': 'jane.smith@email.com',
-                'phone': '+91-9876543211'
-            }
+            # {
+            #     'user_id': 'USR001_John_Doe',
+            #     'full_name': 'John Doe',
+            #     'email': 'john.doe@email.com',
+            #     'phone': '+91-9876543210'
+            # },
+            # {
+            #     'user_id': 'USR002_Jane_Smith',
+            #     'full_name': 'Jane Smith',
+            #     'email': 'jane.smith@email.com',
+            #     'phone': '+91-9876543211'
+            # }
         ]
 
         sample_features = [

@@ -5,7 +5,7 @@ import os
 from contextlib import contextmanager
 
 # Database Configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./finshield.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./web_user_data.db")
 
 # Create engine
 if DATABASE_URL.startswith("sqlite"):
