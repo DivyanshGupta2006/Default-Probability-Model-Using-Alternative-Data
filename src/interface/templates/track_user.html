@@ -1,13 +1,9 @@
 {% extends "base.html" %}
-<!--
-        This is a multi-line comment.
-        It can be used to explain more complex sections of code
-        or to temporarily comment out multiple lines.
-    -->
+
 {% block title %}User Tracking - Finshield{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="text-center mb-12">
         <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -18,15 +14,74 @@
         </p>
     </div>
 
+    <!-- Portfolio Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-blue-100">Total Users</p>
+                    <p class="text-3xl font-bold" id="totalUsers">-</p>
+                </div>
+                <div class="bg-white/20 rounded-lg p-3">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-green-100">Low Risk</p>
+                    <p class="text-3xl font-bold" id="lowRiskUsers">-</p>
+                </div>
+                <div class="bg-white/20 rounded-lg p-3">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-yellow-100">Medium Risk</p>
+                    <p class="text-3xl font-bold" id="mediumRiskUsers">-</p>
+                </div>
+                <div class="bg-white/20 rounded-lg p-3">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-red-100">High Risk</p>
+                    <p class="text-3xl font-bold" id="highRiskUsers">-</p>
+                </div>
+                <div class="bg-white/20 rounded-lg p-3">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Search and Filter Section -->
     <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 mb-8">
-        <div class="grid md:grid-cols-4 gap-6">
+        <div class="grid md:grid-cols-5 gap-6">
             <div class="md:col-span-2">
                 <label for="userSearch" class="block text-sm font-medium text-gray-700 mb-2">
                     Search Users
                 </label>
                 <div class="relative">
-                    <input type="text" id="userSearch" placeholder="Search by name, ID, or phone..."
+                    <input type="text" id="userSearch" placeholder="Search by name, ID, or email..."
                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -53,10 +108,18 @@
                 <select id="statusFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-finshield-blue focus:border-finshield-blue transition-colors">
                     <option value="">All Statuses</option>
                     <option value="active">Active</option>
-                    <option value="pending">Under Review</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="suspended">Suspended</option>
                 </select>
+            </div>
+
+            <div class="flex items-end">
+                <button onclick="refreshData()" class="w-full bg-finshield-blue text-white px-6 py-3 rounded-lg hover:bg-finshield-dark transition-colors flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    Refresh
+                </button>
             </div>
         </div>
 
@@ -64,9 +127,14 @@
             <button onclick="clearFilters()" class="text-gray-600 hover:text-gray-900 transition-colors">
                 Clear Filters
             </button>
-            <button onclick="exportData()" class="bg-finshield-blue text-white px-6 py-2 rounded-lg hover:bg-finshield-dark transition-colors">
-                Export Data
-            </button>
+            <div class="flex space-x-3">
+                <button onclick="exportData()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                    Export Data
+                </button>
+                <button onclick="showAddUserModal()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    Add New User
+                </button>
+            </div>
         </div>
     </div>
 
@@ -79,7 +147,18 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="p-8 text-center">
+            <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-finshield-blue bg-white">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-finshield-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading users...
+            </div>
+        </div>
+
+        <div class="overflow-x-auto" id="tableContainer" style="display: none;">
             <table class="w-full">
                 <thead class="bg-gray-50 border-b">
                     <tr>
@@ -91,166 +170,41 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
-                    <!-- Sample Data - Replace with dynamic content -->
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
-                                    JD
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">John Doe</div>
-                                    <div class="text-sm text-gray-500">ID: USR001</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-3">
-                                    <div class="bg-green-500 h-2 rounded-full" style="width: 25%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-green-600">25%</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                Approved
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            2 hours ago
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex space-x-2">
-                                <button onclick="viewUser('USR001')" class="text-finshield-blue hover:text-finshield-dark transition-colors">
-                                    View
-                                </button>
-                                <button onclick="updateUser('USR001')" class="text-green-600 hover:text-green-800 transition-colors">
-                                    Update
-                                </button>
-                                <button onclick="deleteUser('USR001')" class="text-red-600 hover:text-red-800 transition-colors">
-                                    Delete
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                                    JS
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">Jane Smith</div>
-                                    <div class="text-sm text-gray-500">ID: USR002</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-3">
-                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 55%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-yellow-600">55%</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                Under Review
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            1 day ago
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex space-x-2">
-                                <button onclick="viewUser('USR002')" class="text-finshield-blue hover:text-finshield-dark transition-colors">
-                                    View
-                                </button>
-                                <button onclick="updateUser('USR002')" class="text-green-600 hover:text-green-800 transition-colors">
-                                    Update
-                                </button>
-                                <button onclick="deleteUser('USR002')" class="text-red-600 hover:text-red-800 transition-colors">
-                                    Delete
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold">
-                                    RJ
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">Robert Johnson</div>
-                                    <div class="text-sm text-gray-500">ID: USR003</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-3">
-                                    <div class="bg-red-500 h-2 rounded-full" style="width: 85%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-red-600">85%</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                Rejected
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            3 days ago
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex space-x-2">
-                                <button onclick="viewUser('USR003')" class="text-finshield-blue hover:text-finshield-dark transition-colors">
-                                    View
-                                </button>
-                                <button onclick="updateUser('USR003')" class="text-green-600 hover:text-green-800 transition-colors">
-                                    Update
-                                </button>
-                                <button onclick="deleteUser('USR003')" class="text-red-600 hover:text-red-800 transition-colors">
-                                    Delete
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                    <!-- Dynamic content will be inserted here -->
                 </tbody>
             </table>
         </div>
 
+        <!-- No Data Message -->
+        <div id="noDataMessage" class="p-8 text-center" style="display: none;">
+            <div class="text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m0 0v5h14v-5M6 18h2"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No users found</h3>
+                <p class="mt-1 text-sm text-gray-500">Get started by adding a new user to the system.</p>
+            </div>
+        </div>
+
         <!-- Pagination -->
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
+        <div id="paginationContainer" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200" style="display: none;">
             <div class="flex-1 flex justify-between sm:hidden">
-                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <button id="prevPageMobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Previous
                 </button>
-                <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <button id="nextPageMobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Next
                 </button>
             </div>
             <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                    <p class="text-sm text-gray-700">
-                        Showing <span class="font-medium">1</span> to <span class="font-medium">3</span> of <span class="font-medium">3</span> results
+                    <p class="text-sm text-gray-700" id="paginationInfo">
+                        Showing <span class="font-medium" id="showingFrom">0</span> to <span class="font-medium" id="showingTo">0</span> of <span class="font-medium" id="totalResults">0</span> results
                     </p>
                 </div>
                 <div>
-                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                        <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            Previous
-                        </button>
-                        <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-finshield-blue text-sm font-medium text-white">
-                            1
-                        </button>
-                        <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            Next
-                        </button>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" id="paginationNav">
+                        <!-- Pagination buttons will be inserted here -->
                     </nav>
                 </div>
             </div>
@@ -259,10 +213,10 @@
 
     <!-- User Detail Modal -->
     <div id="userModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full mx-4 max-h-screen overflow-y-auto">
             <div class="sticky top-0 bg-gradient-to-r from-finshield-blue to-finshield-light p-6 rounded-t-2xl">
                 <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-semibold text-white">User Details</h3>
+                    <h3 class="text-xl font-semibold text-white" id="modalUserTitle">User Details</h3>
                     <button onclick="closeUserModal()" class="text-white hover:text-gray-200 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -278,281 +232,131 @@
             </div>
         </div>
     </div>
+
+    <!-- Update User Modal -->
+    <div id="updateModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4">
+            <div class="sticky top-0 bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-t-2xl">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-white">Update User</h3>
+                    <button onclick="closeUpdateModal()" class="text-white hover:text-gray-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-8">
+                <form id="updateUserForm">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="updateUtilityBill" class="block text-sm font-medium text-gray-700 mb-2">
+                                Utility Bill Amount (₹)
+                            </label>
+                            <input type="number" id="updateUtilityBill" name="utility_bil"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                                   placeholder="15000">
+                        </div>
+
+                        <div>
+                            <label for="updateSmartCards" class="block text-sm font-medium text-gray-700 mb-2">
+                                Number of Smart Cards
+                            </label>
+                            <input type="number" id="updateSmartCards" name="no_of_smrt_card" min="0" max="10"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                                   placeholder="3">
+                        </div>
+
+                        <div>
+                            <label for="updateRechargeFreq" class="block text-sm font-medium text-gray-700 mb-2">
+                                Recharge Frequency
+                            </label>
+                            <input type="number" step="0.1" id="updateRechargeFreq" name="rchrg_frq"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                                   placeholder="2.5">
+                        </div>
+
+                        <div>
+                            <label for="updateTruecaller" class="block text-sm font-medium text-gray-700 mb-2">
+                                Truecaller Flag
+                            </label>
+                            <select id="updateTruecaller" name="truecalr_flag"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">
+                                <option value="">Select Flag</option>
+                                <option value="Blue">Blue</option>
+                                <option value="Red">Red</option>
+                                <option value="Golden">Golden</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <label for="updateReason" class="block text-sm font-medium text-gray-700 mb-2">
+                            Reason for Update
+                        </label>
+                        <textarea id="updateReason" rows="3"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                                  placeholder="Enter reason for this update..."></textarea>
+                    </div>
+
+                    <div class="flex justify-end mt-8 space-x-4">
+                        <button type="button" onclick="closeUpdateModal()"
+                                class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            Update User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk History Modal -->
+    <div id="historyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+            <div class="sticky top-0 bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-t-2xl">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-white">Risk Assessment History</h3>
+                    <button onclick="closeHistoryModal()" class="text-white hover:text-gray-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-8">
+                <div id="historyContent">
+                    <!-- Risk history will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<script>
-// Sample user data - Replace with API calls
-const sampleUsers = [
-    {
-        id: 'USR001',
-        name: 'John Doe',
-        riskScore: 25,
-        status: 'approved',
-        lastUpdated: '2 hours ago',
-        education: 'Higher education',
-        region: 2,
-        utilityBills: 8500,
-        smartCards: 3
-    },
-    {
-        id: 'USR002',
-        name: 'Jane Smith',
-        riskScore: 55,
-        status: 'pending',
-        lastUpdated: '1 day ago',
-        education: 'Secondary / secondary special',
-        region: 3,
-        utilityBills: 12000,
-        smartCards: 2
-    },
-    {
-        id: 'USR003',
-        name: 'Robert Johnson',
-        riskScore: 85,
-        status: 'rejected',
-        lastUpdated: '3 days ago',
-        education: 'Lower secondary',
-        region: 3,
-        utilityBills: 15000,
-        smartCards: 1
-    }
-];
-
-// Initialize page
-document.addEventListener('DOMContentLoaded', function() {
-    updateUserCount();
-    setupFilters();
-});
-
-function updateUserCount() {
-    document.getElementById('userCount').textContent = `${sampleUsers.length} Users`;
-}
-
-function setupFilters() {
-    const searchInput = document.getElementById('userSearch');
-    const riskFilter = document.getElementById('riskFilter');
-    const statusFilter = document.getElementById('statusFilter');
-
-    [searchInput, riskFilter, statusFilter].forEach(element => {
-        element.addEventListener('change', filterUsers);
-        element.addEventListener('input', filterUsers);
-    });
-}
-
-function filterUsers() {
-    const searchTerm = document.getElementById('userSearch').value.toLowerCase();
-    const riskLevel = document.getElementById('riskFilter').value;
-    const status = document.getElementById('statusFilter').value;
-
-    // This would typically filter the actual data and re-render the table
-    console.log('Filtering users:', { searchTerm, riskLevel, status });
-}
-
-function clearFilters() {
-    document.getElementById('userSearch').value = '';
-    document.getElementById('riskFilter').value = '';
-    document.getElementById('statusFilter').value = '';
-    filterUsers();
-}
-
-function exportData() {
-    // This would typically generate and download a CSV/Excel file
-    alert('Exporting user data... (Feature would be implemented with actual data)');
-}
-
-function viewUser(userId) {
-    const user = sampleUsers.find(u => u.id === userId);
-    if (!user) return;
-
-    const detailsHtml = `
-        <div class="grid md:grid-cols-2 gap-8">
-            <div class="space-y-6">
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Personal Information</h4>
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Full Name:</span>
-                            <span class="font-medium">${user.name}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">User ID:</span>
-                            <span class="font-medium">${user.id}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Education Level:</span>
-                            <span class="font-medium">${user.education}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Region Rating:</span>
-                            <span class="font-medium">${user.region}/3</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Financial Data</h4>
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Monthly Utility Bills:</span>
-                            <span class="font-medium">₹${user.utilityBills.toLocaleString()}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Smart Cards:</span>
-                            <span class="font-medium">${user.smartCards}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Last Updated:</span>
-                            <span class="font-medium">${user.lastUpdated}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="space-y-6">
-                <div class="bg-white border-2 border-gray-200 p-6 rounded-xl">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Risk Assessment</h4>
-                    <div class="text-center mb-6">
-                        <div class="w-32 h-32 mx-auto mb-4 relative">
-                            <svg class="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
-                                <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" stroke-width="10"/>
-                                <circle cx="60" cy="60" r="50" fill="none" stroke="${getRiskColor(user.riskScore)}"
-                                        stroke-width="10" stroke-dasharray="314"
-                                        stroke-dashoffset="${314 - (314 * user.riskScore / 100)}"
-                                        stroke-linecap="round"/>
-                            </svg>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-2xl font-bold" style="color: ${getRiskColor(user.riskScore)}">${user.riskScore}%</span>
-                            </div>
-                        </div>
-                        <p class="text-lg font-semibold ${getRiskTextClass(user.riskScore)}">${getRiskLevel(user.riskScore)} Risk</p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Status:</span>
-                            <span class="px-2 py-1 rounded-full text-xs font-semibold ${getStatusClass(user.status)}">
-                                ${user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
-                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Risk Factors</h4>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Regional Risk</span>
-                            <div class="flex items-center">
-                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-2">
-                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: ${user.region * 33.33}%"></div>
-                                </div>
-                                <span class="text-xs font-medium">${user.region}/3</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Payment Behavior</span>
-                            <div class="flex items-center">
-                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-2">
-                                    <div class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
-                                </div>
-                                <span class="text-xs font-medium">Good</span>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Digital Footprint</span>
-                            <div class="flex items-center">
-                                <div class="w-20 bg-gray-200 rounded-full h-2 mr-2">
-                                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${user.smartCards * 20}%"></div>
-                                </div>
-                                <span class="text-xs font-medium">${user.smartCards > 2 ? 'Strong' : 'Moderate'}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex justify-end mt-8 space-x-4">
-            <button onclick="closeUserModal()" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                Close
-            </button>
-            <button onclick="updateUser('${user.id}')" class="px-6 py-2 bg-finshield-blue text-white rounded-lg hover:bg-finshield-dark transition-colors">
-                Update User
-            </button>
-        </div>
-    `;
-
-    document.getElementById('userDetailsContent').innerHTML = detailsHtml;
-    document.getElementById('userModal').classList.remove('hidden');
-    document.getElementById('userModal').classList.add('flex');
-}
-
-function updateUser(userId) {
-    // This would typically open an edit form or redirect to an update page
-    alert(`Opening update form for user: ${userId}`);
-    closeUserModal();
-}
-
-function deleteUser(userId) {
-    if (confirm(`Are you sure you want to delete user ${userId}? This action cannot be undone.`)) {
-        alert(`User ${userId} would be deleted from the system.`);
-        // This would typically make an API call to delete the user
-    }
-}
-
-function closeUserModal() {
-    document.getElementById('userModal').classList.add('hidden');
-    document.getElementById('userModal').classList.remove('flex');
-}
-
-function getRiskColor(score) {
-    if (score < 30) return '#10b981'; // green
-    if (score < 70) return '#f59e0b'; // yellow
-    return '#ef4444'; // red
-}
-
-function getRiskTextClass(score) {
-    if (score < 30) return 'text-green-600';
-    if (score < 70) return 'text-yellow-600';
-    return 'text-red-600';
-}
-
-function getRiskLevel(score) {
-    if (score < 30) return 'Low';
-    if (score < 70) return 'Medium';
-    return 'High';
-}
-
-function getStatusClass(status) {
-    switch (status) {
-        case 'approved':
-            return 'bg-green-100 text-green-800';
-        case 'pending':
-            return 'bg-yellow-100 text-yellow-800';
-        case 'rejected':
-            return 'bg-red-100 text-red-800';
-        default:
-            return 'bg-gray-100 text-gray-800';
-    }
-}
-</script>
+<!-- Include the tracking JavaScript -->
+<script src="{{ url_for('static', path='/js/tracking.js') }}"></script>
 
 <style>
-/* Custom scrollbar for modal */
-#userModal .overflow-y-auto::-webkit-scrollbar {
+/* Custom scrollbar for modals */
+.overflow-y-auto::-webkit-scrollbar {
     width: 6px;
 }
 
-#userModal .overflow-y-auto::-webkit-scrollbar-track {
+.overflow-y-auto::-webkit-scrollbar-track {
     background: #f1f5f9;
 }
 
-#userModal .overflow-y-auto::-webkit-scrollbar-thumb {
+.overflow-y-auto::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 3px;
 }
 
-#userModal .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
 
@@ -564,6 +368,29 @@ tbody tr {
 tbody tr:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading animation */
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Risk score progress bars */
+.risk-bar {
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.risk-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+    border-radius: 4px;
 }
 </style>
 {% endblock %}

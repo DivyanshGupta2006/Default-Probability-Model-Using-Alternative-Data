@@ -1,38 +1,60 @@
-from fastapi import APIRouter, Request, HTTPException
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
-from typing import Dict, Any
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from typing import List
 
+from src.interface.database import crud, models
+from src.interface.database.connection import get_database
 from src.interface.services import credit_service
 
 router = APIRouter(prefix="/track", tags=["Tracking"])
-templates = Jinja2Templates(directory="src/interface/templates")
 
-class UserUpdate(BaseModel):
-    features: Dict[str, Any]
-
-@router.get("/", response_class=HTMLResponse)
-def show_tracking_page(request: Request):
-    """Serves the main User Tracking & Management HTML page."""
-    return templates.TemplateResponse("tracking.html", {"request": request})
 
 @router.get("/portfolio")
-def get_full_portfolio():
-    """Returns data for all users in the portfolio to populate the table."""
+def get_full_portfolio(db: Session = Depends(get_database)):
+    """
+    Returns data for all users in the portfolio from the database.
+    """
     try:
-        portfolio_data = credit_service.get_full_portfolio_data()
+        portfolio_data = crud.PortfolioCRUD.get_portfolio_data(db)
         return {"portfolio": portfolio_data}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error fetching portfolio: {e}")  # For debugging
+        raise HTTPException(status_code=500, detail="Could not fetch portfolio data.")
+
 
 @router.put("/users/{user_id}")
-def update_user_data(user_id: str, update_data: UserUpdate):
-    """Updates a user's data and returns their new risk score."""
+def update_user_data(user_id: str, updated_data: dict, db: Session = Depends(get_database)):
+    """
+    Updates a user's data and returns their new risk score.
+    """
     try:
-        new_probability = credit_service.update_and_reevaluate(user_id, update_data.features)
-        return {"user_id": user_id, "new_probability_of_default": new_probability}
+        # 1. Update features in the database
+        crud.FeatureCRUD.update_user_features(db, user_id, updated_data, changed_by="admin_interface")
+
+        # 2. Get the newly updated, complete feature set
+        current_features_obj = crud.FeatureCRUD.get_current_features(db, user_id)
+        if not current_features_obj:
+            raise HTTPException(status_code=404, detail="User features not found after update.")
+
+        # Convert SQLAlchemy object to dictionary for the prediction service
+        features_dict = {c.name: getattr(current_features_obj, c.name) for c in current_features_obj.__table__.columns}
+
+        # 3. Get a new prediction
+        new_assessment = credit_service.predict_and_explain(features_dict)
+
+        # 4. Save the new assessment to the database
+        crud.AssessmentCRUD.create_assessment(
+            db=db,
+            user_id=user_id,
+            feature_id=current_features_obj.feature_id,
+            assessment_data=new_assessment,
+            assessment_type="update"
+        )
+
+        return {"user_id": user_id, "new_probability_of_default": new_assessment['prediction_probability']}
+
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error updating user: {e}")  # For debugging
+        raise HTTPException(status_code=500, detail="An error occurred during user update.")
