@@ -21,8 +21,8 @@ train_df, val_df, test_df = split.split_data(fabricated_merged_df)
 
 print("Splitting successful!")
 
-# train_df = preprocess.clean(train_df, name="clean_train_data.csv")
-# val_df = preprocess.clean(val_df, name="clean_val_data.csv", use_saved=True)
-# test_df = preprocess.clean(test_df, name="clean_test_data.csv", use_saved=True)
-#
-# print("Cleaning successful!")
+train_df = preprocess.clean(train_df, name="clean_train_data.csv")
+val_df = preprocess.clean(val_df, name="clean_val_data.csv", use_saved=True)
+test_df = preprocess.clean(test_df, name="clean_test_data.csv", use_saved=True)
+
+print("Cleaning successful!")
