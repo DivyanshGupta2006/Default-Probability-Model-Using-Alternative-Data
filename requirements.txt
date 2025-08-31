@@ -115,7 +115,9 @@ notebook==7.4.4
 notebook_shim==0.2.4
 numba==0.61.2
 numpy==2.2.6
+numpy-typing-compat==20250818.2.2
 optuna==4.5.0
+optype==0.13.4
 orjson==3.11.2
 overrides==7.7.0
 packaging==25.0
@@ -144,6 +146,7 @@ python-dotenv==1.1.1
 python-json-logger==3.3.0
 python-multipart==0.0.20
 python-slugify==8.0.4
+pytorch-tabnet==4.1.0
 pytz==2025.2
 pywin32==311
 pywinpty==2.0.15
@@ -189,6 +192,7 @@ tqdm==4.67.1
 traitlets==5.14.3
 typer==0.16.0
 types-python-dateutil==2.9.0.20250708
+types-pytz==2025.2.0.20250809
 typing-inspection==0.4.1
 typing_extensions==4.14.1
 tzdata==2025.2

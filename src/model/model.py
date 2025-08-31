@@ -1,5 +1,7 @@
 import joblib
 import numpy as np
+import torch
+from pytorch_tabnet.tab_model import TabNetClassifier
 from sklearn.linear_model import LogisticRegression
 import lightgbm as lgb
 import xgboost as xgb
@@ -30,7 +32,7 @@ class Model:
 
     def save(self, path):
         """Saves the trained model to a file."""
-        joblib.dump(self.model, path)
+        joblib.dump(self, path)
         print(f"Model saved to {path}")
 
 
@@ -64,6 +66,152 @@ class LogisticRegressionModel(Model):
         if params is None:
             params = {'random_state': 42}
         super().__init__(LogisticRegression(**params))
+
+
+class ZIBerModel(Model):
+    """
+    Zero-Inflated Bernoulli (ZIBer) Regression Model from the research paper.
+    Fits using an Expectation-Maximization (EM) algorithm.
+    """
+
+    def __init__(self, params=None):
+        if params is None:
+            params = {
+                'max_iter': 1000,
+                'solver': 'liblinear',
+                'C': 1.0,
+                'random_state': 42
+            }
+
+        # Initialize two logistic regression models as described in the paper
+        self.bernoulli_model = LogisticRegression(**params)  # For p_i, the event probability
+        self.zero_inflation_model = LogisticRegression(**params)  # For delta_i, the structural zero probability
+
+        # The 'model' attribute holds the class itself to ensure the entire object is saved
+        super().__init__(self)
+
+    def fit(self, X, y, X_zero_inflation=None, max_em_iter=50, tol=1e-5):
+        """
+        Fits the ZIBer model using the EM algorithm described in the paper.
+
+        Args:
+            X (pd.DataFrame): Features for the Bernoulli model (x_i).
+            y (pd.Series): The binary target variable (y_i).
+            X_zero_inflation (pd.DataFrame, optional): Features for the zero-inflation model (z_i).
+                                                      If None, uses the same features as X.
+            max_em_iter (int): Maximum number of iterations for the EM algorithm.
+            tol (float): Tolerance for convergence.
+        """
+        print(f"--- Fitting {self.__class__.__name__} ---")
+
+        if X_zero_inflation is None:
+            X_zero_inflation = X
+
+        # Initialize coefficients (beta and theta)
+        beta = np.zeros(X.shape[1] + 1)
+        theta = np.zeros(X_zero_inflation.shape[1] + 1)
+
+        log_likelihood_prev = -np.inf
+
+        for i in range(max_em_iter):
+            # --- E-step: Estimate the latent variable w_i ---
+            # This is the probability of an observation being a structural zero.
+
+            p_i = 1 / (1 + np.exp(-(np.c_[np.ones(X.shape[0]), X] @ beta)))
+            delta_i = 1 / (1 + np.exp(-(np.c_[np.ones(X_zero_inflation.shape[0]), X_zero_inflation] @ theta)))
+
+            w = np.zeros_like(y, dtype=float)
+            zeros_idx = (y == 0)
+
+            # Update w only for the zero-valued observations as per Equation (13)
+            w[zeros_idx] = delta_i[zeros_idx] / (1 - p_i[zeros_idx] * (1 - delta_i[zeros_idx]))
+
+            # --- M-step: Update beta and theta by maximizing log-likelihoods ---
+
+            # Fit the Bernoulli model on all data, weighted by (1 - w)
+            self.bernoulli_model.fit(X, y, sample_weight=(1 - w))
+            beta = np.r_[self.bernoulli_model.intercept_, self.bernoulli_model.coef_.flatten()]
+
+            # Fit the zero-inflation model using w as the target
+            # We use rounded w as target labels for the logistic regression
+            self.zero_inflation_model.fit(X_zero_inflation, np.round(w))
+            theta = np.r_[self.zero_inflation_model.intercept_, self.zero_inflation_model.coef_.flatten()]
+
+            # --- Check for convergence ---
+            p_i_new = self.bernoulli_model.predict_proba(X)[:, 1]
+            delta_i_new = self.zero_inflation_model.predict_proba(X_zero_inflation)[:, 1]
+            pi_i = (1 - delta_i_new) * p_i_new
+
+            # Calculate log-likelihood based on Equation (7)
+            log_likelihood = np.sum(y * np.log(pi_i + 1e-9) + (1 - y) * np.log(1 - pi_i + 1e-9))
+
+            print(f"Iteration {i + 1}, Log-Likelihood: {log_likelihood:.4f}")
+
+            if abs(log_likelihood - log_likelihood_prev) < tol:
+                print("Convergence reached.")
+                break
+            log_likelihood_prev = log_likelihood
+
+        return self
+
+    def predict_proba(self, X, X_zero_inflation=None):
+        """
+        Generates probability predictions using the fitted ZIBer model.
+        """
+        if X_zero_inflation is None:
+            X_zero_inflation = X
+
+        # Predict p_i from the Bernoulli model
+        p_i = self.bernoulli_model.predict_proba(X)[:, 1]
+
+        # Predict delta_i from the zero-inflation model
+        # We take the probability of the positive class (which corresponds to w_i = 1)
+        delta_i = self.zero_inflation_model.predict_proba(X_zero_inflation)[:, 1]
+
+        # Calculate final probability as pi_i = (1 - delta_i) * p_i
+        pi_i = (1 - delta_i) * p_i
+
+        # Return probabilities for class 0 (1 - pi_i) and class 1 (pi_i)
+        return np.vstack([1 - pi_i, pi_i]).T
+
+class TabNetModel(Model):
+    """
+    Wrapper for the TabNet model.
+    """
+    def __init__(self, params=None):
+        if params is None:
+            params = {
+                'verbose': 0,
+                'seed': 42,
+            }
+        # TabNetClassifier is not from sklearn, so we handle it slightly differently
+        super().__init__(TabNetClassifier(**params))
+
+    def fit(self, X, y):
+        """Fits the model to the training data."""
+        print(f"--- Fitting {self.__class__.__name__} ---")
+        # TabNet requires numpy arrays
+        X_np = X.to_numpy()
+        y_np = y.to_numpy()
+
+        # CORRECTED: Define the weighted loss function here
+        loss_fn = torch.nn.CrossEntropyLoss(
+            weight=torch.tensor([1.0, config['data']['zero_to_one_ratio']], dtype=torch.float32)
+        )
+
+        # Pass the loss function to the fit method
+        self.model.fit(
+            X_train=X_np,
+            y_train=y_np,
+            loss_fn=loss_fn,
+            max_epochs=15
+        )
+        return self
+
+    def predict_proba(self, X):
+        """Generates probability predictions."""
+        X_np = X.to_numpy()
+        return self.model.predict_proba(X_np)
 
 
 # --- Ensemble Model ---

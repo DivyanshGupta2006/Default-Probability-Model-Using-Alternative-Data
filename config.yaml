@@ -172,6 +172,24 @@ data:
   categorical_pre_existing:
     - 'NAME_EDUCATION_TYPE'
     - 'NAME_SELLER_INDUSTRY'
+  drop_cols:
+    - 'TRUECALR_FLAG_Blue'
+    - 'TRUECALR_FLAG_Golden'
+    - 'TRUECALR_FLAG_Red'
+    - 'RCHRG_FRQ'
+    - 'TRD_ACC'
+    - 'REV_FRM_CNSMR_APPS'
+    - 'NO_OF_SMRT_CARD'
+    - 'NO_TYPE_OF_ACC'
+    - 'OFC_DOC_EXP'
+    - 'GST_FIL_DEF'
+    - 'REG_VEH_CHALLAN'
+    - 'SIM_CARD_FAIL'
+    - 'ECOM_SHOP_RETURN'
+    - 'UTILITY_BIL'
+    - 'LINKEDIN_DATA'
+    - 'SK_ID_CURR'
+    - 'TARGET'
 
   zero_to_one_ratio: 11.3874
 

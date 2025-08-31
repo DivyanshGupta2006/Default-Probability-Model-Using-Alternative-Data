@@ -5,15 +5,16 @@ from src.utils import get_config, read_file
 config = get_config.read_yaml_from_package()
 
 def test_model(model):
-    model = read_file.read_model_data(model)
+    model = read_file.read_model_data(model+'_model.joblib')
 
     test_df = read_file.read_processed_data('clean_test_data.csv')
 
     # 3. Prepare Data
     id_col = config['data']['id']
     target_col = config['data']['target']
+    drop_cols = config['data']['drop_cols']
 
-    X_test = test_df.drop(columns=[id_col, target_col])
+    X_test = test_df.drop(columns=drop_cols)
     y_test = test_df[target_col]
 
     # 4. Evaluate

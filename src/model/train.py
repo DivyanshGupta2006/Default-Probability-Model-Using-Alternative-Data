@@ -7,7 +7,7 @@ from src.model.model import (
     XGBoostModel,
     CatBoostModel,
     LogisticRegressionModel,
-    StackingEnsemble
+    StackingEnsemble, TabNetModel, ZIBerModel
 )
 from src.utils import get_config, read_file
 
@@ -20,6 +20,8 @@ def get_model(model_name, params):
         'xgboost': XGBoostModel,
         'catboost': CatBoostModel,
         'logistic_regression': LogisticRegressionModel,
+        'ziber': ZIBerModel,
+        'tabnet': TabNetModel,
         'ensemble': StackingEnsemble
     }
 
@@ -51,10 +53,11 @@ def train_model(model_name, model_path, params=None):
     # 2. Prepare Data
     id_col = config['data']['id']
     target_col = config['data']['target']
+    drop_cols = config['data']['drop_cols']
 
-    X_train = train_df.drop(columns=[id_col, target_col])
+    X_train = train_df.drop(columns=drop_cols)
     y_train = train_df[target_col]
-    X_val = val_df.drop(columns=[id_col, target_col])
+    X_val = val_df.drop(columns=drop_cols)
     y_val = val_df[target_col]
 
     # 3. Initialize Model using the factory function

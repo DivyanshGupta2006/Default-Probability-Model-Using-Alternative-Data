@@ -1,4 +1,4 @@
-from src.data_processing import download_data, merge, fabricate, preprocess, split
+from src.data_processing import download_data, merge, fabricate, preprocess, split, feature_engineer
 from src.utils import get_config, read_file
 
 config = get_config.read_yaml_from_main()
@@ -17,9 +17,14 @@ fabricated_merged_df = fabricate.fabricate_features(merged_df)
 
 print("Fabrication successful!")
 
-train_df, val_df, test_df = split.split_data(fabricated_merged_df)
+engineered_df = feature_engineer.engineer_features(fabricated_merged_df)
+print("Feature engineering successful!")
+# ---------------------
 
+# Pass the engineered dataframe to the split function
+train_df, val_df, test_df = split.split_data(engineered_df)
 print("Splitting successful!")
+
 
 train_df = preprocess.clean(train_df, name="clean_train_data.csv")
 val_df = preprocess.clean(val_df, name="clean_val_data.csv", use_saved=True)
