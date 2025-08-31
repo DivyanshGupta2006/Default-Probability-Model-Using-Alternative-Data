@@ -40,7 +40,10 @@ except Exception as e:
 
 # --- 3. HELPER FUNCTION for PREPROCESSING (FINAL, ROBUST VERSION) ---
 
+# In: src/interface/services/credit_service.py
+
 def _apply_inference_pipeline(data: pd.DataFrame) -> pd.DataFrame:
+    """Applies the saved preprocessing pipeline to new data."""
     if not preprocessor:
         raise RuntimeError("Preprocessor is not loaded.")
 
@@ -55,30 +58,30 @@ def _apply_inference_pipeline(data: pd.DataFrame) -> pd.DataFrame:
     all_raw_cols = numerical_cols + categorical_cols
     full_raw_df = pd.DataFrame(columns=all_raw_cols)
 
+    # Populate the full DataFrame with the data we received from the user
     for col in input_df.columns:
         if col in full_raw_df.columns:
             full_raw_df[col] = input_df[col]
 
-    full_raw_df.fillna(0, inplace=True)  # Fill any non-provided columns with 0
+    # --- THIS IS THE FIX ---
+    # Fill missing numerical and categorical columns separately
+    num_df = full_raw_df[numerical_cols].fillna(0)
+    cat_df = full_raw_df[categorical_cols].fillna("Missing")
+    # -----------------------
 
     # Apply transformations
-    encoded_features = encoder.transform(full_raw_df[categorical_cols])
+    encoded_features = encoder.transform(cat_df)
     encoded_df = pd.DataFrame(encoded_features, columns=encoder.get_feature_names_out(categorical_cols))
 
-    scaled_features = scaler.transform(full_raw_df[numerical_cols])
+    scaled_features = scaler.transform(num_df)
     scaled_df = pd.DataFrame(scaled_features, columns=numerical_cols)
 
-    # Combine into a single processed dataframe
+    # Combine and ensure the column order is exactly what the model was trained on
     processed_input_df = pd.concat([scaled_df, encoded_df], axis=1)
 
-    # Get the exact list of columns the model was trained on
     expected_model_columns = model.model.feature_name_
-
-    # Create a new, empty DataFrame with the model's exact column structure, filled with zeros
     final_df = pd.DataFrame(columns=expected_model_columns)
     final_df = pd.concat([final_df, processed_input_df], ignore_index=True).fillna(0)
-
-    # Ensure the column order is identical
     final_df = final_df[expected_model_columns]
 
     return final_df

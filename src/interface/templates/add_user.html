@@ -1,54 +1,56 @@
-       <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Finshield - New Applicant</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>New Credit Application</h1>
-        <p>Fill in the applicant's details to get a credit risk prediction.</p>
+{% extends "base.html" %}
 
+{% block title %}New Applicant - Finshield{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-gray-900">New Credit Application</h2>
+        <p class="mt-4 text-lg text-gray-600">Fill in the applicant's details to get a real-time credit risk prediction.</p>
+    </div>
+
+    <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
         <form id="credit-form">
-            <div class="form-grid">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                 <div class="form-group">
-                    <label for="REGION_RATING_CLIENT_min">Client Region Rating (1-3)</label>
-                    <input type="number" id="REGION_RATING_CLIENT_min" name="REGION_RATING_CLIENT_min" value="2" required>
+                    <label for="REGION_RATING_CLIENT_min" class="block text-sm font-medium text-gray-700">Client Region Rating (1-3)</label>
+                    <input type="number" id="REGION_RATING_CLIENT_min" name="REGION_RATING_CLIENT_min" value="2" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
                 </div>
 
                 <div class="form-group">
-                    <label for="UTILITY_BIL">Avg. Monthly Utility Bill</label>
-                    <input type="number" step="100" id="UTILITY_BIL" name="UTILITY_BIL" value="9500" required>
+                    <label for="UTILITY_BIL" class="block text-sm font-medium text-gray-700">Avg. Monthly Utility Bill</label>
+                    <input type="number" step="100" id="UTILITY_BIL" name="UTILITY_BIL" value="9500" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
                 </div>
 
                 <div class="form-group">
-                    <label for="AMT_DRAWINGS_CURRENT_mean">Avg. Current Drawings</label>
-                    <input type="number" step="100" id="AMT_DRAWINGS_CURRENT_mean" name="AMT_DRAWINGS_CURRENT_mean" value="7500" required>
+                    <label for="AMT_DRAWINGS_CURRENT_mean" class="block text-sm font-medium text-gray-700">Avg. Current Drawings</label>
+                    <input type="number" step="100" id="AMT_DRAWINGS_CURRENT_mean" name="AMT_DRAWINGS_CURRENT_mean" value="7500" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
                 </div>
 
                 <div class="form-group">
-                    <label for="NAME_EDUCATION_TYPE_mode">Education Level</label>
-                    <select id="NAME_EDUCATION_TYPE_mode" name="NAME_EDUCATION_TYPE_mode">
+                    <label for="NAME_EDUCATION_TYPE_mode" class="block text-sm font-medium text-gray-700">Education Level</label>
+                    <select id="NAME_EDUCATION_TYPE_mode" name="NAME_EDUCATION_TYPE_mode" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
                         <option>Secondary / secondary special</option>
                         <option>Higher education</option>
                         <option>Incomplete higher</option>
-                        <option>Lower secondary</option>
-                        <option>Academic degree</option>
                     </select>
                 </div>
             </div>
 
-            <button type="submit">Predict Risk</button>
+            <div class="mt-8 text-center">
+                <button type="submit" class="inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-finshield-blue hover:bg-finshield-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-finshield-blue">
+                    Predict Risk
+                </button>
+            </div>
         </form>
-
-        <hr>
-        <h2>Prediction Result</h2>
-        <div id="result-container">
-            <p>Awaiting submission...</p>
-        </div>
     </div>
 
-    <script src="/static/js/main.js"></script>
-</body>
-</html>
+    <div id="result-container" class="mt-12">
+        </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', path='/js/main.js') }}"></script>
+{% endblock %}

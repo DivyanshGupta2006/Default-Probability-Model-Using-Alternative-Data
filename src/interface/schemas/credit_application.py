@@ -1,47 +1,104 @@
 from pydantic import BaseModel
-from typing import Optional  # <-- Import Optional
-
+from typing import Optional
 
 class CreditApplication(BaseModel):
-    # These are in your form, so they remain required
-    REGION_RATING_CLIENT_min: int
-    AMT_DRAWINGS_CURRENT_mean: float
-    UTILITY_BIL: float
-    NAME_EDUCATION_TYPE_mode: str = "Secondary / secondary special"
-
-    # --- MAKE THESE FIELDS OPTIONAL ---
-    # These are not in your simple form, so we provide a default of None
+    # Numerical Features from config.yaml
+    REGION_RATING_CLIENT_min: Optional[float] = None
+    REGION_RATING_CLIENT_max: Optional[float] = None
+    REGION_RATING_CLIENT_mean: Optional[float] = None
+    REGION_RATING_CLIENT_sum: Optional[float] = None
+    REGION_RATING_CLIENT_std: Optional[float] = None
+    REG_REGION_NOT_LIVE_REGION_min: Optional[float] = None
+    REG_REGION_NOT_LIVE_REGION_max: Optional[float] = None
+    REG_REGION_NOT_LIVE_REGION_mean: Optional[float] = None
+    REG_REGION_NOT_LIVE_REGION_sum: Optional[float] = None
+    REG_REGION_NOT_LIVE_REGION_std: Optional[float] = None
+    REG_REGION_NOT_WORK_REGION_min: Optional[float] = None
+    REG_REGION_NOT_WORK_REGION_max: Optional[float] = None
+    REG_REGION_NOT_WORK_REGION_mean: Optional[float] = None
+    REG_REGION_NOT_WORK_REGION_sum: Optional[float] = None
+    REG_REGION_NOT_WORK_REGION_std: Optional[float] = None
+    LIVE_REGION_NOT_WORK_REGION_min: Optional[float] = None
+    LIVE_REGION_NOT_WORK_REGION_max: Optional[float] = None
+    LIVE_REGION_NOT_WORK_REGION_mean: Optional[float] = None
+    LIVE_REGION_NOT_WORK_REGION_sum: Optional[float] = None
+    LIVE_REGION_NOT_WORK_REGION_std: Optional[float] = None
+    AMT_DRAWINGS_ATM_CURRENT_min: Optional[float] = None
+    AMT_DRAWINGS_ATM_CURRENT_max: Optional[float] = None
     AMT_DRAWINGS_ATM_CURRENT_mean: Optional[float] = None
+    AMT_DRAWINGS_ATM_CURRENT_sum: Optional[float] = None
+    AMT_DRAWINGS_ATM_CURRENT_std: Optional[float] = None
+    AMT_DRAWINGS_CURRENT_min: Optional[float] = None
+    AMT_DRAWINGS_CURRENT_max: Optional[float] = None
+    AMT_DRAWINGS_CURRENT_mean: Optional[float] = None
+    AMT_DRAWINGS_CURRENT_sum: Optional[float] = None
+    AMT_DRAWINGS_CURRENT_std: Optional[float] = None
+    AMT_DRAWINGS_OTHER_CURRENT_min: Optional[float] = None
+    AMT_DRAWINGS_OTHER_CURRENT_max: Optional[float] = None
+    AMT_DRAWINGS_OTHER_CURRENT_mean: Optional[float] = None
+    AMT_DRAWINGS_OTHER_CURRENT_sum: Optional[float] = None
+    AMT_DRAWINGS_OTHER_CURRENT_std: Optional[float] = None
+    AMT_DRAWINGS_POS_CURRENT_min: Optional[float] = None
+    AMT_DRAWINGS_POS_CURRENT_max: Optional[float] = None
     AMT_DRAWINGS_POS_CURRENT_mean: Optional[float] = None
+    AMT_DRAWINGS_POS_CURRENT_sum: Optional[float] = None
+    AMT_DRAWINGS_POS_CURRENT_std: Optional[float] = None
+    CNT_DRAWINGS_ATM_CURRENT_min: Optional[float] = None
+    CNT_DRAWINGS_ATM_CURRENT_max: Optional[float] = None
+    CNT_DRAWINGS_ATM_CURRENT_mean: Optional[float] = None
+    CNT_DRAWINGS_ATM_CURRENT_sum: Optional[float] = None
+    CNT_DRAWINGS_ATM_CURRENT_std: Optional[float] = None
+    CNT_DRAWINGS_CURRENT_min: Optional[float] = None
+    CNT_DRAWINGS_CURRENT_max: Optional[float] = None
     CNT_DRAWINGS_CURRENT_mean: Optional[float] = None
-    SELLERPLACE_AREA_mean: Optional[int] = None
+    CNT_DRAWINGS_CURRENT_sum: Optional[float] = None
+    CNT_DRAWINGS_CURRENT_std: Optional[float] = None
+    CNT_DRAWINGS_OTHER_CURRENT_min: Optional[float] = None
+    CNT_DRAWINGS_OTHER_CURRENT_max: Optional[float] = None
+    CNT_DRAWINGS_OTHER_CURRENT_mean: Optional[float] = None
+    CNT_DRAWINGS_OTHER_CURRENT_sum: Optional[float] = None
+    CNT_DRAWINGS_OTHER_CURRENT_std: Optional[float] = None
+    CNT_DRAWINGS_POS_CURRENT_min: Optional[float] = None
+    CNT_DRAWINGS_POS_CURRENT_max: Optional[float] = None
+    CNT_DRAWINGS_POS_CURRENT_mean: Optional[float] = None
+    CNT_DRAWINGS_POS_CURRENT_sum: Optional[float] = None
+    CNT_DRAWINGS_POS_CURRENT_std: Optional[float] = None
+    SELLERPLACE_AREA_min: Optional[float] = None
+    SELLERPLACE_AREA_max: Optional[float] = None
+    SELLERPLACE_AREA_mean: Optional[float] = None
+    SELLERPLACE_AREA_sum: Optional[float] = None
+    SELLERPLACE_AREA_std: Optional[float] = None
+    NAME_EDUCATION_TYPE_count: Optional[float] = None
+    NAME_EDUCATION_TYPE_nunique: Optional[float] = None
+    NAME_SELLER_INDUSTRY_count: Optional[float] = None
+    NAME_SELLER_INDUSTRY_nunique: Optional[float] = None
     RCHRG_FRQ: Optional[float] = None
     TRD_ACC: Optional[float] = None
-    NO_OF_SMRT_CARD: Optional[int] = None
-    NO_TYPE_OF_ACC: Optional[int] = None
-    OFC_DOC_EXP: Optional[int] = None
-    GST_FIL_DEF: Optional[int] = None
-    NAME_SELLER_INDUSTRY_mode: str = "XNA"
-    TRUECALR_FLAG: str = "Blue"
-    # Example of how to add a default value for the model
+    REV_FRM_CNSMR_APPS: Optional[float] = None
+    NO_OF_SMRT_CARD: Optional[float] = None
+    NO_TYPE_OF_ACC: Optional[float] = None
+    OFC_DOC_EXP: Optional[float] = None
+    GST_FIL_DEF: Optional[float] = None
+    REG_VEH_CHALLAN: Optional[float] = None
+    SIM_CARD_FAIL: Optional[float] = None
+    ECOM_SHOP_RETURN: Optional[float] = None
+    UTILITY_BIL: Optional[float] = None
+    LINKEDIN_DATA: Optional[float] = None
+
+    # Categorical Features from config.yaml
+    NAME_EDUCATION_TYPE_mode: Optional[str] = None
+    NAME_SELLER_INDUSTRY_mode: Optional[str] = None
+    TRUECALR_FLAG: Optional[str] = None
+
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "REGION_RATING_CLIENT_min": 2,
-                "AMT_DRAWINGS_ATM_CURRENT_mean": 5000.0,
                 "AMT_DRAWINGS_CURRENT_mean": 7500.0,
-                "AMT_DRAWINGS_POS_CURRENT_mean": 2500.0,
-                "CNT_DRAWINGS_CURRENT_mean": 10.0,
-                "SELLERPLACE_AREA_mean": 500,
-                "RCHRG_FRQ": 2.0,
-                "TRD_ACC": 1.0,
-                "NO_OF_SMRT_CARD": 2,
-                "NO_TYPE_OF_ACC": 3,
-                "OFC_DOC_EXP": 5,
-                "GST_FIL_DEF": 0,
                 "UTILITY_BIL": 9500.0,
                 "NAME_EDUCATION_TYPE_mode": "Higher education",
-                "NAME_SELLER_INDUSTRY_mode": "Consumer electronics",
-                "TRUECALR_FLAG": "Blue"
+                "RCHRG_FRQ": 2.0,
+                "NO_OF_SMRT_CARD": 2,
+                # Users only need to provide the fields they know
             }
         }
