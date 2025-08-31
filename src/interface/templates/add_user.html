@@ -11,6 +11,28 @@
 
     <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
         <form id="credit-form">
+            <div class="mb-10 pb-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium leading-6 text-gray-900">Applicant Information</h3>
+                <p class="mt-1 text-sm text-gray-500">This information will be used to identify and track the user.</p>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="form-group">
+                        <label for="full_name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" id="full_name" name="full_name" required placeholder="e.g., John Doe" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                    </div>
+                    <div class="form-group">
+                        <label for="user_id" class="block text-sm font-medium text-gray-700">User ID</label>
+                        <input type="text" id="user_id" name="user_id" required placeholder="e.g., USR123_John_Doe" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="e.g., john.doe@example.com" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="e.g., +1-555-123-4567" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                    </div>
+                </div>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 <div class="form-group">
