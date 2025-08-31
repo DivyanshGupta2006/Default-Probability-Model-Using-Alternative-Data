@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, desc
+from sqlalchemy import and_, desc, or_
 from typing import Dict, List, Optional
 from datetime import datetime
 import json
@@ -160,13 +160,13 @@ class AssessmentCRUD:
 
 class PortfolioCRUD:
     @staticmethod
-    def get_portfolio_data(db: Session, filters: Dict = None) -> List[Dict]:
-        """Get complete portfolio data with latest risk scores"""
+    def get_portfolio_data(db: Session, filters: Optional[Dict] = None) -> List[Dict]:
+        """Get complete portfolio data with optional filtering."""
 
-        # Base query
         query = db.query(
             User.user_id,
             User.full_name,
+            User.email,
             User.status,
             UserFeature,
             RiskAssessment.prediction_probability,
@@ -176,19 +176,9 @@ class PortfolioCRUD:
             UserFeature, and_(User.user_id == UserFeature.user_id, UserFeature.is_current == True)
         ).join(
             RiskAssessment, User.user_id == RiskAssessment.user_id
-        ).filter(
-            User.status == "active"
         )
 
-        # Apply filters if provided
-        if filters:
-            if filters.get('risk_level'):
-                query = query.filter(RiskAssessment.risk_category == filters['risk_level'])
-            if filters.get('search'):
-                search_term = f"%{filters['search']}%"
-                query = query.filter(User.full_name.like(search_term))
-
-        # Get latest assessment for each user (subquery approach)
+        # Subquery to ensure we only join with the LATEST assessment for each user
         from sqlalchemy import func
         latest_assessments = db.query(
             RiskAssessment.user_id,
@@ -203,27 +193,41 @@ class PortfolioCRUD:
             )
         )
 
-        results = query.all()
+        # --- FIX START: Apply filters to the query ---
+        if filters:
+            if filters.get('risk_level'):
+                query = query.filter(RiskAssessment.risk_category == filters['risk_level'])
+
+            if filters.get('status'):
+                query = query.filter(User.status == filters['status'])
+
+            if filters.get('search'):
+                search_term = f"%{filters['search']}%"
+                query = query.filter(
+                    or_(
+                        User.user_id.ilike(search_term),
+                        User.full_name.ilike(search_term),
+                        User.email.ilike(search_term)
+                    )
+                )
+        # --- FIX END ---
+
+        results = query.order_by(desc(RiskAssessment.assessed_at)).all()
 
         # Convert to dictionary format
         portfolio_data = []
         for result in results:
-            user, full_name, status, features, prob, risk_cat, assessed_at = result
-
+            user_id, full_name, email, status, features, prob, risk_cat, assessed_at = result
             user_data = {
-                'id': user,
+                'id': user_id,
                 'full_name': full_name,
-                'status': status,
+                'email': email,
+                'status': status.value if status else 'unknown',
                 'risk_score': float(prob) * 100 if prob else 0,
                 'risk_category': risk_cat.value if risk_cat else 'unknown',
-                'last_updated': assessed_at.strftime('%Y-%m-%d %H:%M:%S') if assessed_at else 'Never',
-
-                # Feature data
-                **{
-                    column.name: getattr(features, column.name)
-                    for column in features.__table__.columns
-                    if column.name not in ['feature_id', 'user_id', 'created_at', 'updated_at', 'is_current']
-                }
+                'last_updated': assessed_at.strftime('%Y-%m-%d %H:%M:%S') if assessed_at else 'N/A',
+                **{c.name: getattr(features, c.name) for c in features.__table__.columns if
+                   c.name not in ['feature_id', 'user_id']}
             }
             portfolio_data.append(user_data)
 
