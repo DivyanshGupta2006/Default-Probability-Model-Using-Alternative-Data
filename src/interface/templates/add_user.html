@@ -11,7 +11,7 @@
 
     <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
         <form id="credit-form">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 <div class="form-group">
                     <label for="REGION_RATING_CLIENT_min" class="block text-sm font-medium text-gray-700">Client Region Rating (1-3)</label>
@@ -19,8 +19,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="UTILITY_BIL" class="block text-sm font-medium text-gray-700">Avg. Monthly Utility Bill</label>
-                    <input type="number" step="100" id="UTILITY_BIL" name="UTILITY_BIL" value="9500" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                    <label for="AMT_DRAWINGS_ATM_CURRENT_mean" class="block text-sm font-medium text-gray-700">Avg. ATM Drawings</label>
+                    <input type="number" step="100" id="AMT_DRAWINGS_ATM_CURRENT_mean" name="AMT_DRAWINGS_ATM_CURRENT_mean" value="5000" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
                 </div>
 
                 <div class="form-group">
@@ -29,11 +29,82 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="AMT_DRAWINGS_POS_CURRENT_mean" class="block text-sm font-medium text-gray-700">Avg. POS Drawings</label>
+                    <input type="number" step="100" id="AMT_DRAWINGS_POS_CURRENT_mean" name="AMT_DRAWINGS_POS_CURRENT_mean" value="2500" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="CNT_DRAWINGS_CURRENT_mean" class="block text-sm font-medium text-gray-700">Avg. # of Drawings</label>
+                    <input type="number" step="1" id="CNT_DRAWINGS_CURRENT_mean" name="CNT_DRAWINGS_CURRENT_mean" value="10" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="SELLERPLACE_AREA_mean" class="block text-sm font-medium text-gray-700">Avg. Sellerplace Area</label>
+                    <input type="number" id="SELLERPLACE_AREA_mean" name="SELLERPLACE_AREA_mean" value="500" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="RCHRG_FRQ" class="block text-sm font-medium text-gray-700">Recharge Frequency</label>
+                    <input type="number" step="0.1" id="RCHRG_FRQ" name="RCHRG_FRQ" value="2.0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="TRD_ACC" class="block text-sm font-medium text-gray-700">Trading Accounts</label>
+                    <input type="number" step="1" id="TRD_ACC" name="TRD_ACC" value="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="NO_OF_SMRT_CARD" class="block text-sm font-medium text-gray-700"># of Smart Cards</label>
+                    <input type="number" id="NO_OF_SMRT_CARD" name="NO_OF_SMRT_CARD" value="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="NO_TYPE_OF_ACC" class="block text-sm font-medium text-gray-700"># of Account Types</label>
+                    <input type="number" id="NO_TYPE_OF_ACC" name="NO_TYPE_OF_ACC" value="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="OFC_DOC_EXP" class="block text-sm font-medium text-gray-700">Official Doc Expiry</label>
+                    <input type="number" id="OFC_DOC_EXP" name="OFC_DOC_EXP" value="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="GST_FIL_DEF" class="block text-sm font-medium text-gray-700">GST Filing Defaults</label>
+                    <input type="number" id="GST_FIL_DEF" name="GST_FIL_DEF" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="UTILITY_BIL" class="block text-sm font-medium text-gray-700">Avg. Monthly Utility Bill</label>
+                    <input type="number" step="100" id="UTILITY_BIL" name="UTILITY_BIL" value="9500" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
                     <label for="NAME_EDUCATION_TYPE_mode" class="block text-sm font-medium text-gray-700">Education Level</label>
                     <select id="NAME_EDUCATION_TYPE_mode" name="NAME_EDUCATION_TYPE_mode" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
                         <option>Secondary / secondary special</option>
-                        <option>Higher education</option>
+                        <option selected>Higher education</option>
                         <option>Incomplete higher</option>
+                        <option>Lower secondary</option>
+                        <option>Academic degree</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="NAME_SELLER_INDUSTRY_mode" class="block text-sm font-medium text-gray-700">Seller Industry</label>
+                    <select id="NAME_SELLER_INDUSTRY_mode" name="NAME_SELLER_INDUSTRY_mode" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                        <option>XNA</option>
+                        <option>Consumer electronics</option>
+                        <option>Clothing</option>
+                        <option>Connectivity</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="TRUECALR_FLAG" class="block text-sm font-medium text-gray-700">Truecaller Flag</label>
+                    <select id="TRUECALR_FLAG" name="TRUECALR_FLAG" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                        <option>Blue</option>
+                        <option>Red</option>
+                        <option>Golden</option>
                     </select>
                 </div>
             </div>
