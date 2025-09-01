@@ -173,12 +173,30 @@
                     </select>
                 </div>
 
-                <input type="hidden" name="AMT_DRAWINGS_OTHER_CURRENT" value="0">
-                <input type="hidden" name="AMT_DRAWINGS_POS_CURRENT" value="0">
-                <input type="hidden" name="CNT_DRAWINGS_ATM_CURRENT" value="0">
-                <input type="hidden" name="CNT_DRAWINGS_OTHER_CURRENT" value="0">
-                <input type="hidden" name="CNT_DRAWINGS_POS_CURRENT" value="0">
+                <div class="form-group">
+                    <label for="AMT_DRAWINGS_OTHER_CURRENT" class="block text-sm font-medium text-gray-700">Amount of Other Drawings</label>
+                    <input type="number" step="100" id="AMT_DRAWINGS_OTHER_CURRENT" name="AMT_DRAWINGS_OTHER_CURRENT" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
 
+                <div class="form-group">
+                    <label for="AMT_DRAWINGS_POS_CURRENT" class="block text-sm font-medium text-gray-700">Amount of Point-Of-Scale drawings</label>
+                    <input type="number" step="100" id="AMT_DRAWINGS_POS_CURRENT" name="AMT_DRAWINGS_POS_CURRENT" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="CNT_DRAWINGS_ATM_CURRENT" class="block text-sm font-medium text-gray-700">Number of ATM Drawings</label>
+                    <input type="number" step="1" id="CNT_DRAWINGS_ATM_CURRENT" name="CNT_DRAWINGS_ATM_CURRENT" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="CNT_DRAWINGS_OTHER_CURRENT" class="block text-sm font-medium text-gray-700">Number of Other Drawings</label>
+                    <input type="number" step="1" id="CNT_DRAWINGS_OTHER_CURRENT" name="CNT_DRAWINGS_OTHER_CURRENT" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
+
+                <div class="form-group">
+                    <label for="CNT_DRAWINGS_POS_CURRENT" class="block text-sm font-medium text-gray-700">Number of Point-Of-Scale Drawings</label>
+                    <input type="number" step="1" id="CNT_DRAWINGS_POS_CURRENT" name="CNT_DRAWINGS_POS_CURRENT" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-finshield-blue focus:ring-finshield-blue">
+                </div>
             </div>
 
             <div class="mt-8 text-center">
