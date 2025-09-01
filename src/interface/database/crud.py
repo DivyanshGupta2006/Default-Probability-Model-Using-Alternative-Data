@@ -120,12 +120,15 @@ class AssessmentCRUD:
 
         # Determine risk category based on probability
         probability = assessment_data['prediction_probability']
-        if probability < 0.3:
+
+        # --- UPDATED RISK CATEGORY LOGIC ---
+        if probability < 0.40:  # Less than 40% is Low Risk
             risk_category = RiskCategory.low
-        elif probability < 0.7:
+        elif probability < 0.75:  # Between 40% and 74.99% is Medium Risk
             risk_category = RiskCategory.medium
-        else:
+        else:  # 75% and above is High Risk
             risk_category = RiskCategory.high
+        # --- END OF UPDATE ---
 
         db_assessment = RiskAssessment(
             user_id=user_id,
@@ -135,7 +138,7 @@ class AssessmentCRUD:
             risk_category=risk_category,
             feature_impacts=assessment_data['feature_impacts'],
             assessment_type=AssessmentType(assessment_type),
-            model_version="v1.0"  # You can make this dynamic
+            model_version="v1.0"
         )
 
         db.add(db_assessment)
