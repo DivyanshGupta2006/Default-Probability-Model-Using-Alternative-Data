@@ -1,4 +1,4 @@
-from sklearn.metrics import roc_auc_score, average_precision_score
+from sklearn.metrics import roc_auc_score, average_precision_score, accuracy_score
 
 from src.utils import get_config, read_file
 
@@ -19,9 +19,13 @@ def test_model(model):
 
     # 4. Evaluate
     test_preds = model.predict_proba(X_test)[:, 1]
+    test_preds_class = (test_preds >= config['threshold']).astype(int)
+
+    acc = accuracy_score(y_test, test_preds_class)
     auc = roc_auc_score(y_test, test_preds)
     pr_auc = average_precision_score(y_test, test_preds)
 
     print("\n--- Test Set Performance ---")
+    print(f"Test accuracy: {acc:.4f}")
     print(f"Test ROC AUC: {auc:.4f}")
     print(f"Test PR AUC: {pr_auc:.4f}")

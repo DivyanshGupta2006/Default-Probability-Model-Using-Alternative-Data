@@ -36,37 +36,39 @@ class Model:
         print(f"Model saved to {path}")
 
 
-# --- Individual Model Wrappers ---
+# --- Individual Model Wrappers (CORRECTED) ---
 
 class LightGBMModel(Model):
-    def __init__(self, params=None):
-        if params is None:
-            params = {'random_state': 42, 'class_weight': 'balanced'}
+    def __init__(self, **kwargs):
+        params = {'random_state': 42, 'class_weight': 'balanced'}
+        params.update(kwargs) # Merge tuned params with defaults
         super().__init__(lgb.LGBMClassifier(**params))
 
 
 class XGBoostModel(Model):
-    def __init__(self, params=None):
-        if params is None:
-            ratio = config['data']['zero_to_one_ratio']
-            params = {'random_state': 42, 'eval_metric': 'logloss', 'scale_pos_weight': ratio}
-            super().__init__(xgb.XGBClassifier(**params))
+    def __init__(self, **kwargs):
+        ratio = config['data']['zero_to_one_ratio']
+        params = {'random_state': 42, 'eval_metric': 'logloss', 'scale_pos_weight': ratio}
+        params.update(kwargs) # Merge tuned params with defaults
         super().__init__(xgb.XGBClassifier(**params))
 
 
 class CatBoostModel(Model):
-    def __init__(self, params=None):
-        if params is None:
-            params = {'random_state': 42, 'verbose': 0, 'auto_class_weights': 'Balanced'}
+    def __init__(self, **kwargs):
+        params = {'random_state': 42, 'verbose': 0, 'auto_class_weights': 'Balanced'}
+        params.update(kwargs) # Merge tuned params with defaults
         super().__init__(cb.CatBoostClassifier(**params))
 
 
 class LogisticRegressionModel(Model):
-    def __init__(self, params=None):
-        if params is None:
-            params = {'random_state': 42}
+    def __init__(self, **kwargs):
+        params = {'random_state': 42}
+        params.update(kwargs) # Merge tuned params with defaults
         super().__init__(LogisticRegression(**params))
 
+
+# (The rest of your model.py file remains the same)
+# --- ZIBerModel, TabNetModel, StackingEnsemble etc. ---
 
 class ZIBerModel(Model):
     """
@@ -90,7 +92,7 @@ class ZIBerModel(Model):
         # The 'model' attribute holds the class itself to ensure the entire object is saved
         super().__init__(self)
 
-    def fit(self, X, y, X_zero_inflation=None, max_em_iter=50, tol=1e-5):
+    def fit(self, X, y, X_zero_inflation=None, max_em_iter=10, tol=1e-5):
         """
         Fits the ZIBer model using the EM algorithm described in the paper.
 
@@ -213,6 +215,58 @@ class TabNetModel(Model):
         X_np = X.to_numpy()
         return self.model.predict_proba(X_np)
 
+
+class LightGBMZIBerModel(Model):
+    """
+    A stacked model that first trains a LightGBM model and then uses its
+    predictions as an additional feature for a ZIBer model.
+    """
+    def __init__(self, lgbm_params=None, ziber_params=None):
+        # Initialize the base models that will be used internally
+        self.lgbm = LightGBMModel(**(lgbm_params or {})).model
+        self.ziber = ZIBerModel(params=ziber_params) # ZIBer wrapper expects a 'params' dict
+        super().__init__(self) # The model is the class instance itself
+
+    def fit(self, X, y):
+        print("--- Fitting LightGBMZIBerModel ---")
+
+        # 1. Train the LightGBM model first
+        print("Fitting base LightGBM model...")
+        self.lgbm.fit(X, y)
+
+        # 2. Generate predictions from LightGBM to use as a new feature
+        print("Generating LightGBM predictions as a new feature...")
+        lgbm_preds = self.lgbm.predict_proba(X)[:, 1]
+
+        # 3. Augment the feature set with the new predictions
+        X_augmented = X.copy()
+        X_augmented['lgbm_prediction'] = lgbm_preds
+
+        # 4. Train the ZIBer model on the augmented data
+        print("Fitting ZIBer model on augmented data...")
+        self.ziber.fit(X_augmented, y)
+
+        return self
+
+    def predict_proba(self, X):
+        """
+        Generates final predictions by first predicting with LightGBM,
+        augmenting the data, and then predicting with ZIBer.
+        """
+        # 1. Get predictions from the trained LightGBM model
+        lgbm_preds = self.lgbm.predict_proba(X)[:, 1]
+
+        # 2. Augment the input data with these predictions
+        X_augmented = X.copy()
+        X_augmented['lgbm_prediction'] = lgbm_preds
+
+        # 3. Use the ZIBer model to make the final prediction
+        return self.ziber.predict_proba(X_augmented)
+
+    def save(self, path):
+        """Saves the entire stacked model."""
+        joblib.dump(self, path)
+        print(f"LightGBM-ZIBer stacked model saved to {path}")
 
 # --- Ensemble Model ---
 

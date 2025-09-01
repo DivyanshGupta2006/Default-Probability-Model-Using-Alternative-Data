@@ -204,3 +204,4 @@ files:
     - 'sample_submission.csv'
 
 model: 'lightgbm_model.joblib'
+threshold: 0.75
