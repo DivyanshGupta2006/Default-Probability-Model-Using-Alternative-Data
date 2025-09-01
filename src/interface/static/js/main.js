@@ -1,5 +1,5 @@
 // In: src/interface/static/js/main.js
-
+//updated
 document.addEventListener('DOMContentLoaded', function() {
     const creditForm = document.getElementById('credit-form');
     if (!creditForm) return; // Stop if we're not on the add_user page
