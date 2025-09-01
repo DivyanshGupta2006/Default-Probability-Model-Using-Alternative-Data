@@ -17,19 +17,6 @@ from src.utils import get_config, read_file
 
 config = get_config.read_yaml_from_package()
 
-train_df = read_file.read_processed_data('clean_train_data.csv')
-val_df = read_file.read_processed_data('clean_val_data.csv')
-
-# 2. Prepare Data
-id_col = config['data']['id']
-target_col = config['data']['target']
-drop_cols = config['data']['drop_cols']
-
-X_train = train_df.drop(columns=drop_cols)
-y_train = train_df[target_col]
-X_val = val_df.drop(columns=drop_cols)
-y_val = val_df[target_col]
-
 def get_model(model_name, params):
     """Factory function to get a model instance by name."""
     models = {
@@ -63,6 +50,18 @@ def get_model(model_name, params):
 
 def objective(trial, model_name):
     """Defines the search space for Optuna and returns the PR AUC score."""
+    train_df = read_file.read_processed_data('clean_train_data.csv')
+    val_df = read_file.read_processed_data('clean_val_data.csv')
+
+    # 2. Prepare Data
+    id_col = config['data']['id']
+    target_col = config['data']['target']
+    drop_cols = config['data']['drop_cols']
+
+    X_train = train_df.drop(columns=drop_cols)
+    y_train = train_df[target_col]
+    X_val = val_df.drop(columns=drop_cols)
+    y_val = val_df[target_col]
     if model_name == 'lightgbm':
         params = {
             'objective': 'binary',
@@ -119,6 +118,19 @@ def tune_model_with_optuna(model_name, n_trials=10):
 
 def train_model(model_name, model_path, params=None):
     print(f"--- Preparing to Train Model: {model_name} ---")
+
+    train_df = read_file.read_processed_data('clean_train_data.csv')
+    val_df = read_file.read_processed_data('clean_val_data.csv')
+
+    # 2. Prepare Data
+    id_col = config['data']['id']
+    target_col = config['data']['target']
+    drop_cols = config['data']['drop_cols']
+
+    X_train = train_df.drop(columns=drop_cols)
+    y_train = train_df[target_col]
+    X_val = val_df.drop(columns=drop_cols)
+    y_val = val_df[target_col]
 
     # 3. Initialize Model using the factory function
     model = get_model(model_name, params=params)
