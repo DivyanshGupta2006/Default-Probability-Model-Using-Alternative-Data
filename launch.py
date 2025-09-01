@@ -1,7 +1,5 @@
 import sys
 import subprocess
-import time
-import os
 
 from src import main
 

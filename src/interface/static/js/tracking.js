@@ -216,16 +216,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function handleUpdateUser(event) {
         event.preventDefault();
-        const formData = new FormData(updateUserForm);
-        const updatedData = {};
-        formData.forEach((value, key) => {
-            if (value) updatedData[key] = isNaN(parseFloat(value)) ? value : parseFloat(value);
-        });
 
-        // --- START FIX: Better Error Handling ---
+        const submitBtn = updateUserForm.querySelector('button[type="submit"]');
         const errorDiv = document.getElementById('updateFormError');
         const errorMessageSpan = document.getElementById('updateFormErrorMessage');
-        errorDiv.classList.add('hidden'); // Hide on new submission
+
+        // Reset UI states
+        errorDiv.classList.add('hidden');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Updating...';
+
+        const formData = new FormData(updateUserForm);
+        const updatedData = {};
+        // Collect only non-empty fields to send to the backend
+        formData.forEach((value, key) => {
+            if (value !== null && value.trim() !== '') {
+                const input = updateUserForm.elements[key];
+                if (input.type === 'number' && value.trim() !== '') {
+                    updatedData[key.toUpperCase()] = parseFloat(value); // Convert to uppercase to match Pydantic model
+                } else {
+                    updatedData[key.toUpperCase()] = value;
+                }
+            }
+        });
 
         try {
             const response = await fetch(`/track/users/${currentUserId}`, {
@@ -233,49 +246,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedData)
             });
+
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.detail || 'Failed to update user.');
+                throw new Error(error.detail || 'Failed to update user. Please try again.');
             }
+
+            // If successful, close the modal and refresh the portfolio table
             closeUpdateModal();
-            loadPortfolio(); // Refresh table
+            loadPortfolio();
+
         } catch (error) {
+            console.error("Update Error:", error);
             errorMessageSpan.textContent = error.message;
             errorDiv.classList.remove('hidden');
+        } finally {
+            // Always re-enable the button
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Update User';
         }
-        // --- END FIX ---
     }
-
-    window.clearFilters = () => {
-        userSearchInput.value = '';
-        riskFilterSelect.value = '';
-        statusFilterSelect.value = '';
-        loadPortfolio();
-    };
-
-    window.refreshData = () => clearFilters();
-
-    window.exportData = () => {
-        if (portfolioData.length === 0) {
-            alert("No data to export.");
-            return;
-        }
-        const headers = Object.keys(portfolioData[0]);
-        const csvRows = [headers.join(',')];
-        portfolioData.forEach(row => {
-            const values = headers.map(header => `"${('' + row[header]).replace(/"/g, '""')}"`);
-            csvRows.push(values.join(','));
-        });
-        const csvString = csvRows.join('\\n');
-        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `finshield_portfolio_${new Date().toISOString().slice(0, 10)}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
 
     // --- INITIALIZE ---
     loadPortfolio();
